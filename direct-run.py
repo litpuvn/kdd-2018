@@ -6,13 +6,13 @@ import argparse
 from multiagent.environment import MultiAgentEnv
 from multiagent.policy import InteractivePolicy
 import multiagent.scenarios as scenarios
-from multiagent.speaker_listener import SeakerListenerScenario
+from multiagent.speaker_listener import SpeakerListenerScenario
 
 if __name__ == '__main__':
 
 
     # load scenario from script
-    scenario = SeakerListenerScenario()
+    scenario = SpeakerListenerScenario()
     # create world
     world = scenario.make_world()
     # create multiagent environment

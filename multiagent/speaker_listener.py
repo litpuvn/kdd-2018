@@ -3,7 +3,7 @@ from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
 
 
-class SeakerListenerScenario(BaseScenario):
+class SpeakerListenerScenario(BaseScenario):
     def make_world(self):
         world = World()
         # set any world properties first
