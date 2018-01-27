@@ -151,14 +151,26 @@ class Env(tk.Tk):
         # return observation
         return self.coords_to_state(coords=coords)
 
+    # return state of all agents
     def reset_n(self):
         self.update()
         time.sleep(0.5)
 
         # set random position for agents
+        states = {}
+        for a in self.agents:
+            pos = self.set_agent_random_position(a)
+            x_coord = self.get_row_center_pixel(pos)
+            y_coord = self.get_column_center_pixel(pos)
+            states[a.get_id] = [x_coord, y_coord]
+
+        for v in self.victims:
+            self.set_victim_random_position(v)
 
         self.render()
 
+        # get current state from agent positions
+        return states
 
     def step(self, action):
         state = self.canvas.coords(self.rectangle)
@@ -217,10 +229,7 @@ class Env(tk.Tk):
         if len(self.agents) >= self.max_a_count:
             return False
 
-        positions = self.agent_positions.values()
-
-        pos = self._generate_new_position(positions)
-        self.agent_positions[agent.get_agent_id()] = pos
+        pos = self.set_agent_random_position(agent)
 
         # add image
         r_pixel = self.get_row_center_pixel(pos)
@@ -233,8 +242,24 @@ class Env(tk.Tk):
 
         return agent
 
-    def set_agent_position(self, agent):
+    def set_agent_random_position(self, agent):
         del self.agent_positions[agent.get_id()]
+        positions = self.agent_positions.values()
+
+        pos = self._generate_new_position(positions)
+        self.agent_positions[agent.get_id()] = pos
+
+        return pos
+
+    def set_victim_random_position(self, victim):
+        del self.victim_positions[victim.get_id()]
+
+        positions = self.victim_positions.values()
+
+        pos = self._generate_new_position(positions)
+        self.victim_positions[victim.get_id()] = pos
+
+        return pos
 
     def _generate_new_position(self, existing_positions):
         while True:
@@ -247,11 +272,7 @@ class Env(tk.Tk):
             return False
 
         v = Victim(len(self.victims))
-
-        positions = self.victim_positions.values()
-
-        pos = self._generate_new_position(positions)
-        self.victim_positions[v.get_id()] = pos
+        pos = self.set_victim_random_position(v)
 
         # add image
         r_pixel = self.get_row_center_pixel(pos)
