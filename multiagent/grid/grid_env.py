@@ -138,7 +138,7 @@ class Env(tk.Tk):
         x, y = self.canvas.coords(self.rectangle)
         self.canvas.move(self.rectangle, UNIT / 2 - x, UNIT / 2 - y)
 
-
+    # return the state of the agent (position of the agent in the grid)
     def reset(self):
         self.update()
         time.sleep(0.5)
@@ -146,8 +146,18 @@ class Env(tk.Tk):
         self._reset_agents()
 
         self.render()
+        coords = self.canvas.coords(self.rectangle)
+
         # return observation
-        return self.coords_to_state(self.canvas.coords(self.rectangle))
+        return self.coords_to_state(coords=coords)
+
+    def reset_n(self):
+        self.update()
+        time.sleep(0.5)
+
+        # set random position for agents
+
+        self.render()
 
 
     def step(self, action):
@@ -193,52 +203,63 @@ class Env(tk.Tk):
         time.sleep(0.03)
         self.update()
 
+    def _contain_agent(self, agent):
+        for a in self.agents:
+            if a.get_id() == agent.get_id():
+                return True
+
+        return False
+
     def add_agent(self, agent):
+        if self._contain_agent(agent):
+            return False
+
         if len(self.agents) >= self.max_a_count:
             return False
 
+        positions = self.agent_positions.values()
+
+        pos = self._generate_new_position(positions)
+        self.agent_positions[agent.get_agent_id()] = pos
+
+        # add image
+        r_pixel = self.get_row_center_pixel(pos)
+        c_pixel = self.get_column_center_pixel(pos)
+
+        resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[0])
+        agent.set_resource_id(resource_id)
+
         self.agents.append(agent)
 
-        positions = self.agent_positions.values()
-        found_position = False
-        while not found_position:
+        return agent
 
-            pos = np.random.randint(0, WIDTH*HEIGHT)
-            if pos not in positions:
-                found_position = True
-                positions[agent.get_agent_id()] = pos
+    def set_agent_position(self, agent):
+        del self.agent_positions[agent.get_id()]
 
-                # add image
-                r_pixel = self.get_row_center_pixel(pos)
-                c_pixel = self.get_column_center_pixel(pos)
-
-                resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[0])
-                agent.set_resource_id(resource_id)
-
-        return True
+    def _generate_new_position(self, existing_positions):
+        while True:
+            pos = np.random.randint(0, WIDTH * HEIGHT)
+            if pos not in existing_positions:
+                return pos
 
     def add_victim(self):
         if len(self.victims) > self.max_v_count:
             return False
 
         v = Victim(len(self.victims))
-        self.victims.append(v)
 
         positions = self.victim_positions.values()
-        found_position = False
-        while not found_position:
 
-            pos = np.random.randint(0, WIDTH * HEIGHT)
-            if pos not in positions:
-                found_position = True
-                self.victim_positions[v.get_id()] = pos
+        pos = self._generate_new_position(positions)
+        self.victim_positions[v.get_id()] = pos
 
-                # add image
-                r_pixel = self.get_row_center_pixel(pos)
-                c_pixel = self.get_column_center_pixel(pos)
+        # add image
+        r_pixel = self.get_row_center_pixel(pos)
+        c_pixel = self.get_column_center_pixel(pos)
+        resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[2])
+        v.set_resource_id(resource_id)
 
-                resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[2])
-                v.set_resource_id(resource_id)
+        self.victims.append(v)
 
         return v
 
