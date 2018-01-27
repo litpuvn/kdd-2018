@@ -9,13 +9,37 @@ UNIT = 100  # pixels
 HEIGHT = 5  # grid height
 WIDTH = 5  # grid width
 
+class Victim(object):
+    def __init__(self, victim_id):
+        self.id = victim_id
+        self.pos = None
+        self.resource_id = None
+
+    def get_id(self):
+        return self.id
+
+    def set_position(self, pos):
+        self.pos = pos
+
+    def get_position(self):
+        return self.pos
+
+    def set_resource_id(self, resource_id):
+        if self.resource_id is not None:
+            raise Exception("Resource id for this victim has been assigned to " + self.resource_id)
+
+        self.resource_id = resource_id
+
+    def get_resource_id(self):
+        return self.resource_id
+
 
 class Env(tk.Tk):
-    def __init__(self, agent_count, victim_count):
+    def __init__(self, max_agent_count, max_victim_count):
         super(Env, self).__init__()
         self.action_space = ['u', 'd', 'l', 'r']
-        self.a_count = agent_count
-        self.v_count = victim_count
+        self.max_a_count = max_agent_count
+        self.max_v_count = max_victim_count
         self.n_actions = len(self.action_space)
 
         self.title('Q Learning')
@@ -26,6 +50,11 @@ class Env(tk.Tk):
 
         self._reset_agents()
         self.texts = []
+        self.agents = []
+        self.agent_positions = {}
+
+        self.victims = []
+        self.victim_positions = {}
 
     def _build_canvas(self):
         canvas = tk.Canvas(self, bg='white',
@@ -38,19 +67,22 @@ class Env(tk.Tk):
         for r in range(0, HEIGHT * UNIT, UNIT):  # 0~400 by 80
             x0, y0, x1, y1 = 0, r, HEIGHT * UNIT, r
             canvas.create_line(x0, y0, x1, y1)
-
-        # add img to canvas
-        self.rectangle = canvas.create_image(50, 50, image=self.shapes[0])
-        self.triangle1 = canvas.create_image(250, 150, image=self.shapes[1])
-        self.triangle2 = canvas.create_image(150, 250, image=self.shapes[1])
-
-
-        self.circle = canvas.create_image(250, 250, image=self.shapes[2])
-
-        # pack all
-        canvas.pack()
+        #
+        # # add img to canvas
+        # self.rectangle = canvas.create_image(50, 50, image=self.shapes[0])
+        # self.triangle1 = canvas.create_image(250, 150, image=self.shapes[1])
+        # self.triangle2 = canvas.create_image(150, 250, image=self.shapes[1])
+        #
+        #
+        # self.circle = canvas.create_image(250, 250, image=self.shapes[2])
+        #
+        # # pack all
+        # canvas.pack()
 
         return canvas
+
+    def pack_canvas(self):
+        self.canvas.pack()
 
     def load_images(self):
         rectangle = PhotoImage(
@@ -160,3 +192,68 @@ class Env(tk.Tk):
     def render(self):
         time.sleep(0.03)
         self.update()
+
+    def add_agent(self, agent):
+        if len(self.agents) >= self.max_a_count:
+            return False
+
+        self.agents.append(agent)
+
+        positions = self.agent_positions.values()
+        found_position = False
+        while not found_position:
+
+            pos = np.random.randint(0, WIDTH*HEIGHT)
+            if pos not in positions:
+                found_position = True
+                positions[agent.get_agent_id()] = pos
+
+                # add image
+                r_pixel = self.get_row_center_pixel(pos)
+                c_pixel = self.get_column_center_pixel(pos)
+
+                resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[0])
+                agent.set_resource_id(resource_id)
+
+        return True
+
+    def add_victim(self):
+        if len(self.victims) > self.max_v_count:
+            return False
+
+        v = Victim(len(self.victims))
+        self.victims.append(v)
+
+        positions = self.victim_positions.values()
+        found_position = False
+        while not found_position:
+
+            pos = np.random.randint(0, WIDTH * HEIGHT)
+            if pos not in positions:
+                found_position = True
+                self.victim_positions[v.get_id()] = pos
+
+                # add image
+                r_pixel = self.get_row_center_pixel(pos)
+                c_pixel = self.get_column_center_pixel(pos)
+
+                resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[2])
+                v.set_resource_id(resource_id)
+
+        return v
+
+    def get_row(self, pos):
+        return pos // WIDTH
+
+    def get_col(self, pos):
+        return pos % WIDTH
+
+    def get_row_center_pixel(self, pos):
+        row = self.get_row(pos)
+
+        return row*UNIT + UNIT / 2
+
+    def get_column_center_pixel(self, pos):
+        col = self.get_col(pos)
+
+        return col*UNIT + UNIT / 2

@@ -43,11 +43,22 @@ from multiagent.grid.q_learning_agent import QLearningAgent
 
 
 if __name__ == "__main__":
-    agent_count = 3
-    victim_count = 8
+    max_agent_count = 10
+    max_victim_count = 10
 
-    env = Env(agent_count, victim_count)
-    agent = QLearningAgent(actions=list(range(env.n_actions)))
+    env = Env(max_agent_count, max_victim_count)
+
+    agent_count = 3
+    victim_count = 5
+
+    for i in range(agent_count):
+        agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i)
+        env.addAgent(agent)
+
+    for i in range(victim_count):
+        env.add_victim()
+
+    env.pack_canvas()
 
     for episode in range(1000):
         state = env.reset()
