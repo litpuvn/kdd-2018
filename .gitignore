@@ -1,3 +1,4 @@
 .idea/
 multiagent/__pycache__/
 multiagent/scenarios/__pycache__/
+multiagent/grid/__pycache__/
