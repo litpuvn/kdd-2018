@@ -11,14 +11,20 @@ WIDTH = 5  # grid width
 
 
 class Env(tk.Tk):
-    def __init__(self):
+    def __init__(self, agent_count, victim_count):
         super(Env, self).__init__()
         self.action_space = ['u', 'd', 'l', 'r']
+        self.a_count = agent_count
+        self.v_count = victim_count
         self.n_actions = len(self.action_space)
+
         self.title('Q Learning')
         self.geometry('{0}x{1}'.format(HEIGHT * UNIT, HEIGHT * UNIT))
         self.shapes = self.load_images()
+
         self.canvas = self._build_canvas()
+
+        self._reset_agents()
         self.texts = []
 
     def _build_canvas(self):
@@ -37,6 +43,8 @@ class Env(tk.Tk):
         self.rectangle = canvas.create_image(50, 50, image=self.shapes[0])
         self.triangle1 = canvas.create_image(250, 150, image=self.shapes[1])
         self.triangle2 = canvas.create_image(150, 250, image=self.shapes[1])
+
+
         self.circle = canvas.create_image(250, 250, image=self.shapes[2])
 
         # pack all
@@ -94,11 +102,17 @@ class Env(tk.Tk):
         y = int(state[1] * 100 + 50)
         return [x, y]
 
+    def _reset_agents(self):
+        x, y = self.canvas.coords(self.rectangle)
+        self.canvas.move(self.rectangle, UNIT / 2 - x, UNIT / 2 - y)
+
+
     def reset(self):
         self.update()
         time.sleep(0.5)
-        x, y = self.canvas.coords(self.rectangle)
-        self.canvas.move(self.rectangle, UNIT / 2 - x, UNIT / 2 - y)
+
+        self._reset_agents()
+
         self.render()
         # return observation
         return self.coords_to_state(self.canvas.coords(self.rectangle))
