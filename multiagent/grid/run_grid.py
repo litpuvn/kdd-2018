@@ -66,13 +66,13 @@ if __name__ == "__main__":
 
         while True:
             env.render()
-
+            done = False
             # take action and proceed one step in the environment
             for i in range(agent_count):
                 agent = env.get_agent(i)
                 state = str(state_n[i])
                 action = agent.get_action(state)
-                next_state, reward, done = env.agen_step(agent, action)
+                next_state, reward, done = env.agent_step(agent, action)
 
                 # with sample <s,a,r,s'>, agent learns new q function
                 agent.learn(str(state), action, reward, str(next_state))
@@ -81,5 +81,5 @@ if __name__ == "__main__":
                 env.print_value_all(agent.q_table)
 
             # if episode ends, then break
-            # if done:
-            #     break
+            if done:
+                break
