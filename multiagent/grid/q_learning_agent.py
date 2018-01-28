@@ -37,8 +37,6 @@ class QLearningAgent(BaseAgent):
             action = self.arg_max(state_action)
         return action
 
-
-
     @staticmethod
     def arg_max(state_action):
         max_index_list = []
