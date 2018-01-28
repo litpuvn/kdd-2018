@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
                 cumulative_reward += reward
 
-                env.print_value_all(agent.q_table)
+                # env.print_value_all(agent.q_table)
 
             # if episode ends, then break
             if done:
