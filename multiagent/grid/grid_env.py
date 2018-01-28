@@ -38,6 +38,9 @@ class Victim(object):
     def set_rescued(self):
         self.rescued = True
 
+    def reset_rescued(self):
+        self.rescued = False
+
     def is_rescued(self):
         return self.rescued
 
@@ -167,6 +170,8 @@ class Env(tk.Tk):
         # set random position for agents
         states = self.reset_agents()
 
+        self.reset_victims_state()
+
         self.render()
 
         # get current state from agent positions
@@ -177,8 +182,14 @@ class Env(tk.Tk):
             pos = self.set_victim_random_position(v)
             x_coord = self.get_row_center_pixel(pos)
             y_coord = self.get_column_center_pixel(pos)
+            v.set_position(pos)
+            v.reset_rescued()
 
             self.canvas.coords(v.get_resource_id(), [x_coord, y_coord])
+
+    def reset_victims_state(self):
+        for v in self.victims:
+            v.reset_rescued()
 
     def reset_agents(self):
         states = {}

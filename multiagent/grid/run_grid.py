@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     for episode in range(1000):
         state_n = env.reset_n()
-        print("Episode", episode)
+        print("Episode", episode, "states:", state_n)
         counter = 0
         cumulative_reward = 0
         while True:
