@@ -8,7 +8,7 @@ from multiagent.policy import InteractivePolicy
 import multiagent.scenarios as scenarios
 from multiagent.speaker_listener import SpeakerListenerScenario
 
-
+import numpy as np
 from multiagent.grid.grid_env import Env
 from multiagent.grid.q_learning_agent import QLearningAgent
 
@@ -64,9 +64,11 @@ if __name__ == "__main__":
         state_n = env.reset_n()
         print("Episode", episode)
         counter = 0
+        cumulative_reward = 0
         while True:
             env.render()
             done = False
+            reward_n = np.zeros(agent_count)
             counter = counter + 1
             # take action and proceed one step in the environment
             for i in range(agent_count):
@@ -78,10 +80,14 @@ if __name__ == "__main__":
                 # with sample <s,a,r,s'>, agent learns new q function
                 agent.learn(str(state), action, reward, str(next_state))
 
-                state = next_state
+                state_n[i] = next_state
+                reward_n[i] = reward
+
+                cumulative_reward += reward
+
                 env.print_value_all(agent.q_table)
 
             # if episode ends, then break
             if done:
-                print("Episode", episode, " ends in", counter, " iterations")
+                print("Episode", episode, " ends in", counter, " iterations, with total reward=", cumulative_reward)
                 break
