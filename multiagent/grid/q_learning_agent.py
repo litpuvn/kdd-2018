@@ -2,19 +2,21 @@ import numpy as np
 import random
 from multiagent.grid.grid_env import Env
 from collections import defaultdict
+from multiagent.grid.base_agent import BaseAgent
 
-class QLearningAgent:
+
+class QLearningAgent(BaseAgent):
+
     def __init__(self, actions, agent_id):
+
+        super().__init__(agent_id)
+
         # actions = [0, 1, 2, 3]
         self.actions = actions
         self.learning_rate = 0.01
         self.discount_factor = 0.9
         self.epsilon = 0.1
         self.q_table = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
-        self.agent_id = agent_id
-        self.resource_id = None
-        self.pos = None
-        self.init_pos = None
 
     # update q function with sample <s, a, r, s'>
     def learn(self, state, action, reward, next_state):
@@ -35,8 +37,7 @@ class QLearningAgent:
             action = self.arg_max(state_action)
         return action
 
-    def get_id(self):
-        return self.agent_id
+
 
     @staticmethod
     def arg_max(state_action):
@@ -50,24 +51,3 @@ class QLearningAgent:
             elif value == max_value:
                 max_index_list.append(index)
         return random.choice(max_index_list)
-
-    def set_resource_id(self, resource_id):
-        if self.resource_id is not None:
-            raise Exception("Resource id for this agent has been assigned to " + self.resource_id)
-
-        self.resource_id = resource_id
-
-    def get_resource_id(self):
-        return self.resource_id
-
-    def set_position(self, pos):
-        self.pos = pos
-
-    def get_position(self):
-        return self.pos
-
-    def set_initial_position(self, pos):
-        self.init_pos = pos
-
-    def get_initial_position(self):
-        return self.init_pos
