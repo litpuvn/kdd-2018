@@ -142,16 +142,16 @@ class Env(tk.Tk):
         y = int(state[1] * 100 + 50)
         return [x, y]
 
-    def _reset_agents(self):
-        x, y = self.canvas.coords(self.rectangle)
-        self.canvas.move(self.rectangle, UNIT / 2 - x, UNIT / 2 - y)
+    # def _reset_agents(self):
+    #     x, y = self.canvas.coords(self.rectangle)
+    #     self.canvas.move(self.rectangle, UNIT / 2 - x, UNIT / 2 - y)
 
     # return the state of the agent (position of the agent in the grid)
     def reset(self):
         self.update()
         time.sleep(0.5)
 
-        self._reset_agents()
+        # self._reset_agents()
 
         self.render()
         coords = self.canvas.coords(self.rectangle)
@@ -165,16 +165,14 @@ class Env(tk.Tk):
         time.sleep(0.5)
 
         # set random position for agents
-        states = {}
-        for a in self.agents:
-            pos = self.set_agent_random_position(a)
-            x_coord = self.get_row_center_pixel(pos)
-            y_coord = self.get_column_center_pixel(pos)
+        states = self.reset_agents()
 
-            self.canvas.coords(a.get_resource_id(), [x_coord, y_coord])
+        self.render()
 
-            states[a.get_id()] = [x_coord, y_coord]
+        # get current state from agent positions
+        return states
 
+    def reset_victims(self):
         for v in self.victims:
             pos = self.set_victim_random_position(v)
             x_coord = self.get_row_center_pixel(pos)
@@ -182,9 +180,17 @@ class Env(tk.Tk):
 
             self.canvas.coords(v.get_resource_id(), [x_coord, y_coord])
 
-        self.render()
+    def reset_agents(self):
+        states = {}
+        for a in self.agents:
+            initial_pos = a.get_initial_position()
+            x_coord = self.get_column_center_pixel(initial_pos)
+            y_coord = self.get_row_center_pixel(initial_pos)
 
-        # get current state from agent positions
+            self.canvas.coords(a.get_resource_id(), [x_coord, y_coord])
+
+            states[a.get_id()] = [x_coord, y_coord]
+
         return states
 
     def agent_step(self, agent, action):
@@ -305,6 +311,8 @@ class Env(tk.Tk):
             return False
 
         pos = self.set_agent_random_position(agent)
+
+        agent.set_initial_position(pos)
 
         # add image
         r_pixel = self.get_row_center_pixel(pos)

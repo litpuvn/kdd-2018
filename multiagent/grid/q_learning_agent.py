@@ -14,6 +14,7 @@ class QLearningAgent:
         self.agent_id = agent_id
         self.resource_id = None
         self.pos = None
+        self.init_pos = None
 
     # update q function with sample <s, a, r, s'>
     def learn(self, state, action, reward, next_state):
@@ -64,3 +65,9 @@ class QLearningAgent:
 
     def get_position(self):
         return self.pos
+
+    def set_initial_position(self, pos):
+        self.init_pos = pos
+
+    def get_initial_position(self):
+        return self.init_pos
