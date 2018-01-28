@@ -22,7 +22,6 @@ class Victim(object):
     def set_position(self, pos):
         self.pos = pos
 
-    @property
     def get_position(self):
         return self.pos
 
