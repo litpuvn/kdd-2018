@@ -63,10 +63,11 @@ if __name__ == "__main__":
     for episode in range(1000):
         state_n = env.reset_n()
         print("Episode", episode)
-
+        counter = 0
         while True:
             env.render()
             done = False
+            counter = counter + 1
             # take action and proceed one step in the environment
             for i in range(agent_count):
                 agent = env.get_agent(i)
@@ -82,4 +83,5 @@ if __name__ == "__main__":
 
             # if episode ends, then break
             if done:
+                print("Episode", episode, " ends in", counter, " iterations")
                 break
