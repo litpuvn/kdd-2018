@@ -21,6 +21,7 @@ class Victim(object):
     def set_position(self, pos):
         self.pos = pos
 
+    @property
     def get_position(self):
         return self.pos
 
@@ -48,7 +49,7 @@ class Env(tk.Tk):
 
         self.canvas = self._build_canvas()
 
-        self._reset_agents()
+        # self._reset_agents()
         self.texts = []
         self.agents = []
         self.agent_positions = {}
@@ -162,10 +163,17 @@ class Env(tk.Tk):
             pos = self.set_agent_random_position(a)
             x_coord = self.get_row_center_pixel(pos)
             y_coord = self.get_column_center_pixel(pos)
-            states[a.get_id] = [x_coord, y_coord]
+
+            self.canvas.coords(a.get_resource_id(), [x_coord, y_coord])
+
+            states[a.get_id()] = [x_coord, y_coord]
 
         for v in self.victims:
-            self.set_victim_random_position(v)
+            pos = self.set_victim_random_position(v)
+            x_coord = self.get_row_center_pixel(pos)
+            y_coord = self.get_column_center_pixel(pos)
+
+            self.canvas.coords(v.get_resource_id(), [x_coord, y_coord])
 
         self.render()
 
@@ -222,6 +230,14 @@ class Env(tk.Tk):
 
         return False
 
+    # get agent object. False otherwise
+    def get_agent(self, agent_id):
+        for a in self.agents:
+            if agent_id == a.get_id():
+                return a
+
+        return False
+
     def add_agent(self, agent):
         if self._contain_agent(agent):
             return False
@@ -243,7 +259,9 @@ class Env(tk.Tk):
         return agent
 
     def set_agent_random_position(self, agent):
-        del self.agent_positions[agent.get_id()]
+        key = str(agent.get_id())
+        if key in self.agent_positions.keys():
+            del self.agent_positions[agent.get_id()]
         positions = self.agent_positions.values()
 
         pos = self._generate_new_position(positions)
@@ -252,7 +270,8 @@ class Env(tk.Tk):
         return pos
 
     def set_victim_random_position(self, victim):
-        del self.victim_positions[victim.get_id()]
+        if victim.get_id() in self.victim_positions:
+            del self.victim_positions[victim.get_id()]
 
         positions = self.victim_positions.values()
 
@@ -293,9 +312,9 @@ class Env(tk.Tk):
     def get_row_center_pixel(self, pos):
         row = self.get_row(pos)
 
-        return row*UNIT + UNIT / 2
+        return int(row*UNIT + UNIT / 2)
 
     def get_column_center_pixel(self, pos):
         col = self.get_col(pos)
 
-        return col*UNIT + UNIT / 2
+        return int(col*UNIT + UNIT / 2)

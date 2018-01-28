@@ -33,7 +33,7 @@ class QLearningAgent:
             action = self.arg_max(state_action)
         return action
 
-    def get_agent_id(self):
+    def get_id(self):
         return self.agent_id
 
     @staticmethod

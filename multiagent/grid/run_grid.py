@@ -48,12 +48,12 @@ if __name__ == "__main__":
 
     env = Env(max_agent_count, max_victim_count)
 
-    agent_count = 3
-    victim_count = 5
+    agent_count = 2
+    victim_count = 3
 
     for i in range(agent_count):
         agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i)
-        env.addAgent(agent)
+        env.add_agent(agent)
 
     for i in range(victim_count):
         env.add_victim()
@@ -61,22 +61,25 @@ if __name__ == "__main__":
     env.pack_canvas()
 
     for episode in range(1000):
-        state = env.reset()
+        state_n = env.reset_n()
         print("Episode", episode)
 
         while True:
             env.render()
 
             # take action and proceed one step in the environment
-            action = agent.get_action(str(state))
-            next_state, reward, done = env.step(action)
+            for i in range(agent_count):
+                agent = env.get_agent(i)
+                state = str(state_n[i])
+                action = agent.get_action(state)
+                next_state, reward, done = env.step(action)
 
-            # with sample <s,a,r,s'>, agent learns new q function
-            agent.learn(str(state), action, reward, str(next_state))
+                # with sample <s,a,r,s'>, agent learns new q function
+                agent.learn(str(state), action, reward, str(next_state))
 
-            state = next_state
-            env.print_value_all(agent.q_table)
+                state = next_state
+                env.print_value_all(agent.q_table)
 
             # if episode ends, then break
-            if done:
-                break
+            # if done:
+            #     break
