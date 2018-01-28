@@ -160,8 +160,8 @@ class Env(tk.Tk):
         self.canvas.tag_raise(agent_resource_id)
 
         next_state = self.canvas.coords(agent_resource_id)
-        x_coord = next_state[0]
-        y_coord = next_state[1]
+        x_coord = int(next_state[0])
+        y_coord = int(next_state[1])
 
         row = self.get_row_from_coord(y_coord)
         col = self.get_col_from_coord(x_coord)
@@ -185,7 +185,7 @@ class Env(tk.Tk):
         # done if all victims are rescued
         done = len(unrescued_victims) == 0
 
-        return next_state, reward, done
+        return [x_coord, y_coord], reward, done
 
     def render(self):
         time.sleep(0.03)

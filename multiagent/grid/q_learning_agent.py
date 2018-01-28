@@ -7,6 +7,8 @@ from multiagent.grid.base_agent import BaseAgent
 
 class QLearningAgent(BaseAgent):
 
+    Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
+
     def __init__(self, actions, agent_id):
 
         super().__init__(agent_id)
@@ -16,14 +18,14 @@ class QLearningAgent(BaseAgent):
         self.learning_rate = 0.01
         self.discount_factor = 0.9
         self.epsilon = 0.1
-        self.q_table = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
+        # self.q_table = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
 
     # update q function with sample <s, a, r, s'>
     def learn(self, state, action, reward, next_state):
-        current_q = self.q_table[state][action]
+        current_q = QLearningAgent.Q_TABLE[state][action]
         # using Bellman Optimality Equation to update q function
-        new_q = reward + self.discount_factor * max(self.q_table[next_state])
-        self.q_table[state][action] += self.learning_rate * (new_q - current_q)
+        new_q = reward + self.discount_factor * max(QLearningAgent.Q_TABLE[next_state])
+        QLearningAgent.Q_TABLE[state][action] += self.learning_rate * (new_q - current_q)
 
     # get action for the state according to the q function table
     # agent pick action of epsilon-greedy policy
@@ -33,7 +35,7 @@ class QLearningAgent(BaseAgent):
             action = np.random.choice(self.actions)
         else:
             # take action according to the q function table
-            state_action = self.q_table[state]
+            state_action = QLearningAgent.Q_TABLE[state]
             action = self.arg_max(state_action)
         return action
 
