@@ -36,11 +36,11 @@ class QLearningAgent(BaseAgent):
         else:
             # take action according to the q function table
             state_action = self.Q_TABLE[state]
-            action = self.arg_max(state_action)
+            action = self._arg_max(state_action)
         return action
 
     @staticmethod
-    def arg_max(state_action):
+    def _arg_max(state_action):
         max_index_list = []
         max_value = state_action[0]
         for index, value in enumerate(state_action):

@@ -30,3 +30,7 @@ class BaseAgent:
 
     def get_initial_position(self):
         return self.init_pos
+
+    # by default, the agent does not have capability to learn anything
+    def learn(self, state, action, reward, next_state):
+        a =1
