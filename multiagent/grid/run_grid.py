@@ -72,7 +72,7 @@ if __name__ == "__main__":
                 agent = env.get_agent(i)
                 state = str(state_n[i])
                 action = agent.get_action(state)
-                next_state, reward, done = env.step(action)
+                next_state, reward, done = env.agen_step(agent, action)
 
                 # with sample <s,a,r,s'>, agent learns new q function
                 agent.learn(str(state), action, reward, str(next_state))

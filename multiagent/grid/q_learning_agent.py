@@ -13,6 +13,7 @@ class QLearningAgent:
         self.q_table = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
         self.agent_id = agent_id
         self.resource_id = None
+        self.pos = None
 
     # update q function with sample <s, a, r, s'>
     def learn(self, state, action, reward, next_state):
@@ -57,3 +58,9 @@ class QLearningAgent:
 
     def get_resource_id(self):
         return self.resource_id
+
+    def set_position(self, pos):
+        self.pos = pos
+
+    def get_position(self):
+        return self.pos

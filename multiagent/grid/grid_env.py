@@ -14,6 +14,7 @@ class Victim(object):
         self.id = victim_id
         self.pos = None
         self.resource_id = None
+        self.rescued = False
 
     def get_id(self):
         return self.id
@@ -33,6 +34,12 @@ class Victim(object):
 
     def get_resource_id(self):
         return self.resource_id
+
+    def set_rescued(self):
+        self.rescued = True
+
+    def is_rescued(self):
+        return self.rescued
 
 
 class Env(tk.Tk):
@@ -180,6 +187,58 @@ class Env(tk.Tk):
         # get current state from agent positions
         return states
 
+    def agent_step(self, agent, action):
+        agent_resource_id = agent.get_resource_id()
+        state = self.canvas.coords(agent_resource_id)
+        base_action = np.array([0, 0])
+        self.render()
+
+        if action == 0:  # up
+            if state[1] > UNIT:
+                base_action[1] -= UNIT
+        elif action == 1:  # down
+            if state[1] < (HEIGHT - 1) * UNIT:
+                base_action[1] += UNIT
+        elif action == 2:  # left
+            if state[0] > UNIT:
+                base_action[0] -= UNIT
+        elif action == 3:  # right
+            if state[0] < (WIDTH - 1) * UNIT:
+                base_action[0] += UNIT
+
+        # move agent
+        self.canvas.move(agent_resource_id, base_action[0], base_action[1])
+        # move rectangle to top level of canvas
+        self.canvas.tag_raise(agent_resource_id)
+
+        next_state = self.canvas.coords(agent_resource_id)
+        x_coord = next_state[0]
+        y_coord = next_state[1]
+
+        row = self.get_row_from_coord(y_coord)
+        col = self.get_col_from_coord(x_coord)
+
+        pos = self.get_pos_from_row_and_col(row, col)
+        agent.set_position(pos)
+
+        unrescued_victims = self.get_unrescued_victims()
+        reward = 0
+        for v in unrescued_victims:
+            if next_state == self.canvas.coords(v.get_resource_id()):
+                reward = reward + 100
+                v.set_rescued()
+
+        # action does not save anyone will be discounted 100
+        if reward == 0:
+            reward = -100
+
+        unrescued_victims = self.get_unrescued_victims()
+
+        # done if all victims are rescued
+        done = len(unrescued_victims) == 0
+
+        return next_state, reward, done
+
     def step(self, action):
         state = self.canvas.coords(self.rectangle)
         base_action = np.array([0, 0])
@@ -266,6 +325,7 @@ class Env(tk.Tk):
 
         pos = self._generate_new_position(positions)
         self.agent_positions[agent.get_id()] = pos
+        agent.set_position(pos)
 
         return pos
 
@@ -277,6 +337,7 @@ class Env(tk.Tk):
 
         pos = self._generate_new_position(positions)
         self.victim_positions[victim.get_id()] = pos
+        victim.set_position(pos)
 
         return pos
 
@@ -318,3 +379,22 @@ class Env(tk.Tk):
         col = self.get_col(pos)
 
         return int(col*UNIT + UNIT / 2)
+
+    def get_row_from_coord(self, row_pixel):
+
+        return int((row_pixel - UNIT / 2) / UNIT)
+
+    def get_col_from_coord(self, col_pixel):
+
+        return int((col_pixel - UNIT / 2) / UNIT)
+
+    def get_pos_from_row_and_col(self, row, col):
+        return row * WIDTH + col
+
+    def get_unrescued_victims(self):
+        unrescued_victims = []
+        for v in self.victims:
+            if not v.is_rescued():
+                unrescued_victims.append(v)
+
+        return unrescued_victims
