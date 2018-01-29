@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     for i in range(agent_count):
         agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i)
-        # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i)
+        agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i)
         env.add_agent(agent)
 
     for i in range(victim_count):
