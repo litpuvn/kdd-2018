@@ -295,6 +295,7 @@ class Env(tk.Tk):
 
         return int((row_pixel - UNIT / 2) / UNIT)
 
+
     def get_col_from_coord(self, col_pixel):
 
         return int((col_pixel - UNIT / 2) / UNIT)
@@ -309,3 +310,30 @@ class Env(tk.Tk):
                 unrescued_victims.append(v)
 
         return unrescued_victims
+
+    def get_closest_victim(self, agent):
+
+        unrescued_victims = self.get_unrescued_victims()
+        min_distance = 100000000
+        closest_victim = None
+
+        for v in unrescued_victims:
+            distance = self.distance(agent=agent, victim=v)
+            if min_distance > distance:
+                min_distance = distance
+                closest_victim = v
+
+        return closest_victim
+
+    def distance(self, agent, victim):
+        a_x = self.get_column_center_pixel(agent.get_position())
+        v_x = self.get_column_center_pixel(victim.get_position())
+
+        a_y = self.get_row_center_pixel(agent.get_position())
+        v_y = self.get_column_center_pixel(victim.get_position())
+
+        return abs(a_x - v_x) + abs(a_y - v_y)
+
+    def action_to_go_to_victim(self, agent, victime):
+
+        return 1

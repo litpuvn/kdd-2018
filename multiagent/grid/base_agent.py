@@ -1,11 +1,12 @@
 
 class BaseAgent:
 
-    def __init__(self, agent_id):
+    def __init__(self, agent_id, env):
         self.agent_id = agent_id
         self.resource_id = None
         self.pos = None
         self.init_pos = None
+        self.env = env
 
     def get_id(self):
         return self.agent_id

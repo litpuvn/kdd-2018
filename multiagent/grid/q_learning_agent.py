@@ -9,9 +9,9 @@ class QLearningAgent(BaseAgent):
 
     # Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
 
-    def __init__(self, actions, agent_id):
+    def __init__(self, actions, agent_id, env):
 
-        super().__init__(agent_id)
+        super().__init__(agent_id, env)
 
         # actions = [0, 1, 2, 3]
         self.actions = actions
