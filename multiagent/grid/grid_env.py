@@ -271,9 +271,9 @@ class Env(tk.Tk):
         pos = self.set_victim_random_position(v)
 
         # add image
-        r_pixel = self.get_row_center_pixel(pos)
-        c_pixel = self.get_column_center_pixel(pos)
-        resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[2])
+        y_pixel = self.get_row_center_pixel(pos)
+        x_pixel = self.get_column_center_pixel(pos)
+        resource_id = self.canvas.create_image(x_pixel, y_pixel, image=self.shapes[2])
         v.set_resource_id(resource_id)
 
         self.victims.append(v)
@@ -356,4 +356,4 @@ class Env(tk.Tk):
             elif a_y < v_y:
                 return GO_DOWN
 
-        raise Exception('Unkow situation: ax=' + str(a_x) + ";ay=" + str(a_y) + ";apos=" + str(agent.get_position()) + ";vx=" + str(v_x) + ";vy=" + str(v_y)  + ";vpos=" + str(victim.get_position()))
+        raise Exception('Unkown situation: ax=' + str(a_x) + ";ay=" + str(a_y) + ";apos=" + str(agent.get_position()) + ";vx=" + str(v_x) + ";vy=" + str(v_y)  + ";vpos=" + str(victim.get_position()))
