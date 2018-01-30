@@ -113,15 +113,15 @@ class Env(tk.Tk):
         # get current state from agent positions
         return states
 
-    def reset_victims(self):
-        for v in self.victims:
-            pos = self.set_victim_random_position(v)
-            x_coord = self.get_row_center_pixel(pos)
-            y_coord = self.get_column_center_pixel(pos)
-            v.set_position(pos)
-            v.reset_rescued()
-
-            self.canvas.coords(v.get_resource_id(), [x_coord, y_coord])
+    # def reset_victims(self):
+    #     for v in self.victims:
+    #         pos = self.set_victim_random_position(v)
+    #         x_coord = self.get_row_center_pixel(pos)
+    #         y_coord = self.get_column_center_pixel(pos)
+    #         v.set_position(pos)
+    #         v.reset_rescued()
+    #
+    #         self.canvas.coords(v.get_resource_id(), [x_coord, y_coord])
 
     def reset_victims_state(self):
         for v in self.victims:
@@ -270,6 +270,8 @@ class Env(tk.Tk):
         v = Victim(len(self.victims))
         pos = self.set_victim_random_position(v)
 
+        print("Victim", v.get_id(), "; pos=", v.get_position())
+
         # add image
         y_pixel = self.get_row_center_pixel(pos)
         x_pixel = self.get_column_center_pixel(pos)
@@ -344,7 +346,7 @@ class Env(tk.Tk):
         a_x = self.get_column_center_pixel(agent.get_position())
         v_x = self.get_column_center_pixel(victim.get_position())
         a_y = self.get_row_center_pixel(agent.get_position())
-        v_y = self.get_column_center_pixel(victim.get_position())
+        v_y = self.get_row_center_pixel(victim.get_position())
 
         if a_x > v_x:
             return GO_LEFT
