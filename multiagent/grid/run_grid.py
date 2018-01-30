@@ -12,6 +12,7 @@ import numpy as np
 from multiagent.grid.grid_env import Env
 from multiagent.grid.q_learning_agent import QLearningAgent
 from multiagent.grid.random_action_agent import RandomActionAgent
+from multiagent.grid.greedy_agent import GreedyAgent
 
 # if __name__ == '__main__':
 #
@@ -53,8 +54,10 @@ if __name__ == "__main__":
     victim_count = 3
 
     for i in range(agent_count):
-        agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i)
-        agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i)
+        # agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+
         env.add_agent(agent)
 
     for i in range(victim_count):

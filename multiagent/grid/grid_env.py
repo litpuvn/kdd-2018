@@ -356,4 +356,4 @@ class Env(tk.Tk):
             elif a_y < v_y:
                 return GO_DOWN
 
-        raise Exception('Unkow situation: ax=' + str(a_x) + ";ay=" + str(a_y) + ";vx=" + str(v_x) + ";vy=" + str(v_y))
+        raise Exception('Unkow situation: ax=' + str(a_x) + ";ay=" + str(a_y) + ";apos=" + str(agent.get_position()) + ";vx=" + str(v_x) + ";vy=" + str(v_y)  + ";vpos=" + str(victim.get_position()))
