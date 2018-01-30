@@ -9,6 +9,11 @@ UNIT = 100  # pixels
 HEIGHT = 5  # grid height
 WIDTH = 5  # grid width
 
+GO_UP = 0
+GO_DOWN = 1
+GO_LEFT = 2
+GO_RIGHT = 3
+
 class Victim(object):
     def __init__(self, victim_id):
         self.id = victim_id
@@ -334,6 +339,21 @@ class Env(tk.Tk):
 
         return abs(a_x - v_x) + abs(a_y - v_y)
 
-    def action_to_go_to_victim(self, agent, victime):
+    def action_to_go_to_victim(self, agent, victim):
 
-        return 1
+        a_x = self.get_column_center_pixel(agent.get_position())
+        v_x = self.get_column_center_pixel(victim.get_position())
+        a_y = self.get_row_center_pixel(agent.get_position())
+        v_y = self.get_column_center_pixel(victim.get_position())
+
+        if a_x > v_x:
+            return GO_LEFT
+        elif a_x < v_x:
+            return GO_RIGHT
+        else:
+            if a_y > v_y:
+                return GO_UP
+            elif a_y < v_y:
+                return GO_DOWN
+
+        raise Exception('Unkow situation: ax=' + str(a_x) + ";ay=" + str(a_y) + ";vx=" + str(v_x) + ";vy=" + str(v_y))
