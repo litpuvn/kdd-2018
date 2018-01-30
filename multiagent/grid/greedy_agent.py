@@ -20,7 +20,7 @@ class GreedyAgent(BaseAgent):
         v = self.env.get_closest_victim(self)
 
         if v is None or (self.get_position() == v.get_position()):
-            action = np.random.choice(self.actions)
+            action = 4 # stay still
         else:
             action = self.env.action_to_go_to_victim(self, v)
 
