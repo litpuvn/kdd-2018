@@ -89,6 +89,7 @@ if __name__ == "__main__":
                 reward_n[i] = reward
 
                 cumulative_reward += reward
+                print("Episode", episode, ", agent", agent.get_id(),  ", at iteration", counter, ", with total reward=", cumulative_reward)
 
                 # env.print_value_all(agent.q_table)
 
