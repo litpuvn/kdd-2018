@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     env = Env(max_agent_count, max_victim_count)
 
-    agent_count = 1
+    agent_count = 2
     victim_count = 3
 
     for i in range(agent_count):
@@ -89,11 +89,11 @@ if __name__ == "__main__":
                 reward_n[i] = reward
 
                 cumulative_reward += reward
-                print("Episode", episode, ", agent", agent.get_id(),  ", at iteration", counter, ", with total reward=", cumulative_reward)
+                print("Episode=", episode, ", agent=", agent.get_id(),  ", at iteration=", counter, ", with total reward=", cumulative_reward)
 
                 # env.print_value_all(agent.q_table)
 
             # if episode ends, then break
             if done:
-                print("Episode", episode, " ends in", counter, " iterations, with total reward=", cumulative_reward)
+                print("Episode=", episode, ", ends in a number of iterations=", counter, ", with total reward=", cumulative_reward)
                 break
