@@ -6,13 +6,17 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.models import Sequential
 from keras import backend as K
+from multiagent.grid.base_agent import BaseAgent
 
 EPISODES = 2500
 
 
 # this is REINFORCE Agent for GridWorld
-class ReinforceAgent:
-    def __init__(self):
+class ReinforceAgent(BaseAgent):
+    def __init__(self, actions, agent_id, env):
+
+        super().__init__(agent_id, env)
+
         self.load_model = True
         # actions which agent can do
         self.action_space = [0, 1, 2, 3, 4]
