@@ -10,6 +10,7 @@ from multiagent.grid.base_agent import BaseAgent
 
 EPISODES = 2500
 
+#https://stackoverflow.com/questions/44747343/keras-input-explanation-input-shape-units-batch-size-dim-etc
 
 # this is REINFORCE Agent for GridWorld
 class ReinforceAgent(BaseAgent):
