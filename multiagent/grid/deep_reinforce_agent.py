@@ -13,7 +13,7 @@ EPISODES = 2500
 #https://stackoverflow.com/questions/44747343/keras-input-explanation-input-shape-units-batch-size-dim-etc
 
 # this is REINFORCE Agent for GridWorld
-class ReinforceAgent(BaseAgent):
+class DeepReinforceAgent(BaseAgent):
     def __init__(self, actions, agent_id, env):
 
         super().__init__(agent_id, env)

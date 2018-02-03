@@ -13,6 +13,7 @@ from multiagent.grid.grid_env import Env
 from multiagent.grid.q_learning_agent import QLearningAgent
 from multiagent.grid.random_action_agent import RandomActionAgent
 from multiagent.grid.greedy_agent import GreedyAgent
+from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 
 # if __name__ == '__main__':
 #
@@ -57,6 +58,7 @@ if __name__ == "__main__":
         # agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
 
         env.add_agent(agent)
 
