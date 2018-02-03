@@ -52,7 +52,6 @@ if __name__ == "__main__":
     max_victim_count = 10
 
     env = Env(max_agent_count, max_victim_count)
-    scheduler = CentralController()
 
     agent_count = 2
     victim_count = 3
@@ -65,6 +64,8 @@ if __name__ == "__main__":
         env.add_victim()
 
     env.pack_canvas()
+
+    scheduler = CentralController(env, env.get_agents(), env.get_victims())
 
     for episode in range(EPISODES):
         state_n = env.reset_n()
@@ -85,14 +86,9 @@ if __name__ == "__main__":
                 agent = env.get_agent(i)
                 state = str(state_n[i])
                 action = action_n[i]
+
                 next_state, reward, done_i = env.agent_step(agent, action)
                 done_n[i] = done_i
-
-                scheduler.append_agent_sample(agent, state, action, reward)
-
-                # # with sample <s,a,r,s'>, agent learns new q function
-                # agent.learn(str(state), action, reward, str(next_state))
-
                 state_n[i] = next_state
                 reward_n[i] = reward
 

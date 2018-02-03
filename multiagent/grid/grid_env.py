@@ -213,6 +213,12 @@ class Env(tk.Tk):
 
         return False
 
+    def get_agents(self):
+        return self.agents
+
+    def get_victims(self):
+        return self.victims
+
     def add_agent(self, agent):
         if self._contain_agent(agent):
             return False

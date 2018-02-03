@@ -9,9 +9,11 @@ from keras.models import Sequential
 from keras import backend as K
 
 class CentralController:
-    def __init__(self):
+    def __init__(self, env, agents, victims):
 
-        # super().__init__(agent_id, env)
+        self.env = env
+        self.agents = agents
+        self.victims = victims
 
         self.load_model = True
         # actions which agent can do
