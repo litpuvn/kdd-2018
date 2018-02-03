@@ -148,14 +148,19 @@ class CentralController:
 
         return reward
 
-
-
     def _convert_to_internal_reward(self, reward_n):
-        return 1
 
+        return np.sum(reward_n)
 
     def _convert_to_internal_action(self, action_n):
-        act = np.zeros(self.action_size)
-       # act[action] = 1
 
-        return 1
+        internal_action = []
+
+        for i in range(self.agent_count):
+            act = np.zeros(self.action_size)
+            agent_action = action_n[i]
+            act[agent_action] = 1
+            for j in act:
+                internal_action.append(j)
+
+        return internal_action

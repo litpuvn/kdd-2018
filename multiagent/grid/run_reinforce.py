@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     env = Env(max_agent_count, max_victim_count)
 
-    agent_count = 2
+    agent_count = 1
     victim_count = 3
 
     for i in range(agent_count):
