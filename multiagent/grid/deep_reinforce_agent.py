@@ -8,8 +8,7 @@ from keras.models import Sequential
 from keras import backend as K
 from multiagent.grid.base_agent import BaseAgent
 
-EPISODES = 2500
-
+import os.path
 #https://stackoverflow.com/questions/44747343/keras-input-explanation-input-shape-units-batch-size-dim-etc
 
 # this is REINFORCE Agent for GridWorld
@@ -32,7 +31,9 @@ class DeepReinforceAgent(BaseAgent):
         self.states, self.actions, self.rewards = [], [], []
 
         if self.load_model:
-            self.model.load_weights('./save_model/reinforce_trained.h5')
+            fname = './save_model/reinforce_trained.h5'
+            if os.path.isfile(fname):
+                self.model.load_weights(fname)
 
     # state is input and probability of each action(policy) is output of network
     def build_model(self):

@@ -43,6 +43,7 @@ from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 #         #for agent in env.world.agents:
 #         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
 
+EPISODES = 1000
 
 
 if __name__ == "__main__":
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     for i in range(agent_count):
         # agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        # agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
 
         env.add_agent(agent)
@@ -67,7 +68,7 @@ if __name__ == "__main__":
 
     env.pack_canvas()
 
-    for episode in range(1000):
+    for episode in range(EPISODES):
         state_n = env.reset_n()
         print("Episode", episode, "states:", state_n)
         counter = 0
