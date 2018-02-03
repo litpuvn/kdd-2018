@@ -35,33 +35,33 @@ class DeepReinforceAgent(BaseAgent):
             if os.path.isfile(fname):
                 self.model.load_weights(fname)
 
-    # state is input and probability of each action(policy) is output of network
-    def build_model(self):
-        model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
-        model.add(Dense(self.action_size, activation='softmax'))
-        model.summary()
-        return model
-
-    # create error function and training function to update policy network
-    def optimizer(self):
-        action = K.placeholder(shape=[None, 5])
-        discounted_rewards = K.placeholder(shape=[None, ])
-
-        # Calculate cross entropy error function
-        action_prob = K.sum(action * self.model.output, axis=1)
-        cross_entropy = K.log(action_prob) * discounted_rewards
-        loss = -K.sum(cross_entropy)
-
-        # create training function
-        optimizer = Adam(lr=self.learning_rate)
-        updates = optimizer.get_updates(self.model.trainable_weights, [],
-                                        loss)
-        train = K.function([self.model.input, action, discounted_rewards], [],
-                           updates=updates)
-
-        return train
+    # # state is input and probability of each action(policy) is output of network
+    # def build_model(self):
+    #     model = Sequential()
+    #     model.add(Dense(24, input_dim=self.state_size, activation='relu'))
+    #     model.add(Dense(24, activation='relu'))
+    #     model.add(Dense(self.action_size, activation='softmax'))
+    #     model.summary()
+    #     return model
+    #
+    # # create error function and training function to update policy network
+    # def optimizer(self):
+    #     action = K.placeholder(shape=[None, 5])
+    #     discounted_rewards = K.placeholder(shape=[None, ])
+    #
+    #     # Calculate cross entropy error function
+    #     action_prob = K.sum(action * self.model.output, axis=1)
+    #     cross_entropy = K.log(action_prob) * discounted_rewards
+    #     loss = -K.sum(cross_entropy)
+    #
+    #     # create training function
+    #     optimizer = Adam(lr=self.learning_rate)
+    #     updates = optimizer.get_updates(self.model.trainable_weights, [],
+    #                                     loss)
+    #     train = K.function([self.model.input, action, discounted_rewards], [],
+    #                        updates=updates)
+    #
+    #     return train
 
     # get action from policy network
     def get_action(self, state):
