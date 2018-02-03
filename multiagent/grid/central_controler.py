@@ -77,6 +77,13 @@ class CentralController:
         act[action] = 1
         self.actions.append(act)
 
+    def append_agent_sample(self, agent, state, action, reward):
+        self.states.append(state[0])
+        self.rewards.append(reward)
+        act = np.zeros(self.action_size)
+        act[action] = 1
+        self.actions.append(act)
+
     # update policy neural network
     def train_model(self):
         discounted_rewards = np.float32(self._discount_rewards(self.rewards))
@@ -85,3 +92,12 @@ class CentralController:
 
         self.optimizer([self.states, self.actions, discounted_rewards])
         self.states, self.actions, self.rewards = [], [], []
+
+
+    def get_action(self, state):
+
+        return 1
+
+    def get_agent_action(self, agent, state):
+
+        return 1

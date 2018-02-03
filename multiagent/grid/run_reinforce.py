@@ -14,6 +14,7 @@ from multiagent.grid.q_learning_agent import QLearningAgent
 from multiagent.grid.random_action_agent import RandomActionAgent
 from multiagent.grid.greedy_agent import GreedyAgent
 from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
+from multiagent.grid.central_controler import CentralController
 
 # if __name__ == '__main__':
 #
@@ -51,16 +52,13 @@ if __name__ == "__main__":
     max_victim_count = 10
 
     env = Env(max_agent_count, max_victim_count)
+    scheduler = CentralController()
 
     agent_count = 2
     victim_count = 3
 
     for i in range(agent_count):
-        # agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        # agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-
         env.add_agent(agent)
 
     for i in range(victim_count):
@@ -76,17 +74,24 @@ if __name__ == "__main__":
         while True:
             env.render()
             done = False
-            reward_n = np.zeros(agent_count)
             counter = counter + 1
+
+            done_n = np.zeros(agent_count)
+            reward_n = np.zeros(agent_count)
+            action_n = scheduler.get_action(state_n)
+
             # take action and proceed one step in the environment
             for i in range(agent_count):
                 agent = env.get_agent(i)
                 state = str(state_n[i])
-                action = agent.get_action(state)
-                next_state, reward, done = env.agent_step(agent, action)
+                action = action_n[i]
+                next_state, reward, done_i = env.agent_step(agent, action)
+                done_n[i] = done_i
 
-                # with sample <s,a,r,s'>, agent learns new q function
-                agent.learn(str(state), action, reward, str(next_state))
+                scheduler.append_agent_sample(agent, state, action, reward)
+
+                # # with sample <s,a,r,s'>, agent learns new q function
+                # agent.learn(str(state), action, reward, str(next_state))
 
                 state_n[i] = next_state
                 reward_n[i] = reward
@@ -96,7 +101,12 @@ if __name__ == "__main__":
 
                 # env.print_value_all(agent.q_table)
 
+            scheduler.append_sample(state_n, action_n, reward_n)
+            done = (np.sum(done_n) == len(done_n))
             # if episode ends, then break
             if done:
+
+                scheduler.train_model()
+
                 print("Episode=", episode, ", ends in a number of iterations=", counter, ", with total reward=", cumulative_reward)
                 break
