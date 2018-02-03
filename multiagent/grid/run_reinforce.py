@@ -2,6 +2,7 @@
 import os,sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import argparse
+import time
 
 from multiagent.environment import MultiAgentEnv
 from multiagent.policy import InteractivePolicy
@@ -16,33 +17,6 @@ from multiagent.grid.greedy_agent import GreedyAgent
 from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 from multiagent.grid.central_controler import CentralController
 
-# if __name__ == '__main__':
-#
-#
-#     # load scenario from script
-#     scenario = SpeakerListenerScenario()
-#     # create world
-#     world = scenario.make_world()
-#     # create multiagent environment
-#     env = MultiAgentEnv(world, scenario.reset_world, scenario.reward, scenario.observation, info_callback=None, shared_viewer = False)
-#     # render call to create viewer window (necessary only for interactive policies)
-#     env.render()
-#     # create interactive policies for each agent
-#     policies = [InteractivePolicy(env,i) for i in range(env.n)]
-#     # execution loop
-#     obs_n = env.reset()
-#     while True:
-#         # query for action from each agent's policy
-#         act_n = []
-#         for i, policy in enumerate(policies):
-#             act_n.append(policy.action(obs_n[i]))
-#         # step environment
-#         obs_n, reward_n, done_n, _ = env.step(act_n)
-#         # render all agent views
-#         env.render()
-#         # display rewards
-#         #for agent in env.world.agents:
-#         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
 
 EPISODES = 1000
 

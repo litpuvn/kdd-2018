@@ -17,7 +17,7 @@ class DeepReinforceAgent(BaseAgent):
 
         super().__init__(agent_id, env)
 
-        self.load_model = True
+        # self.load_model = True
         # actions which agent can do
         self.action_space = [0, 1, 2, 3, 4]
         # get size of state and action
@@ -26,14 +26,14 @@ class DeepReinforceAgent(BaseAgent):
         self.discount_factor = 0.99
         self.learning_rate = 0.001
 
-        self.model = self.build_model()
-        self.optimizer = self.optimizer()
+        # self.model = self.build_model()
+        # self.optimizer = self.optimizer()
         self.states, self.actions, self.rewards = [], [], []
 
-        if self.load_model:
-            fname = './save_model/reinforce_trained.h5'
-            if os.path.isfile(fname):
-                self.model.load_weights(fname)
+        # if self.load_model:
+        #     fname = './save_model/reinforce_trained.h5'
+        #     if os.path.isfile(fname):
+        #         self.model.load_weights(fname)
 
     # # state is input and probability of each action(policy) is output of network
     # def build_model(self):
