@@ -44,15 +44,13 @@ from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 #         #for agent in env.world.agents:
 #         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
 
-
-
 if __name__ == "__main__":
     max_agent_count = 10
     max_victim_count = 10
 
     env = Env(max_agent_count, max_victim_count)
 
-    agent_count = 1
+    agent_count = 2
     victim_count = 3
 
     for i in range(agent_count):
