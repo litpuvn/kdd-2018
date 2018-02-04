@@ -14,6 +14,7 @@ from multiagent.grid.q_learning_agent import QLearningAgent
 from multiagent.grid.random_action_agent import RandomActionAgent
 from multiagent.grid.greedy_agent import GreedyAgent
 from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
+import pylab
 
 # if __name__ == '__main__':
 #
@@ -44,6 +45,7 @@ from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 #         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
 
 
+TOTAL_EPISODES = 2500
 
 if __name__ == "__main__":
     max_agent_count = 10
@@ -55,11 +57,8 @@ if __name__ == "__main__":
     victim_count = 3
 
     for i in range(agent_count):
-        agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         # agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        # agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-
         env.add_agent(agent)
 
     for i in range(victim_count):
@@ -67,13 +66,24 @@ if __name__ == "__main__":
 
     env.pack_canvas()
 
-    for episode in range(1000):
+    global_step = 0
+    episodes = []
+    scores = []
+
+    for episode in range(TOTAL_EPISODES):
         state_n = env.reset_n()
-        print("Episode", episode, "states:", state_n)
         counter = 0
         cumulative_reward = 0
+
+        score = 0
+        episode_time_step = 0
+
         while True:
             env.render()
+            global_step += 1
+            episode_time_step += 1
+            score_per_episode_time_step = 0
+
             done = False
             reward_n = np.zeros(agent_count)
             counter = counter + 1
@@ -91,11 +101,19 @@ if __name__ == "__main__":
                 reward_n[i] = reward
 
                 cumulative_reward += reward
-                print("Episode=", episode, ", agent=", agent.get_id(),  ", at iteration=", counter, ", with total reward=", cumulative_reward)
 
-                # env.print_value_all(agent.q_table)
+                score += reward
+                score_per_episode_time_step += reward
+
+            print("episode:", episode, " episode time_step:", episode_time_step, " score:", score_per_episode_time_step)
 
             # if episode ends, then break
             if done:
-                print("Episode=", episode, ", ends in a number of iterations=", counter, ", with total reward=", cumulative_reward)
+                scores.append(score)
+                episodes.append(episode)
+                print("episode:", episode, "  score:", score, "  episode time_step:", episode_time_step, " global time:", global_step)
                 break
+
+        if episode % 10 == 0:
+            pylab.plot(episodes, scores, 'b')
+            pylab.savefig("./save_graph/random_policy.png")

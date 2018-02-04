@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 scores.append(score)
                 episodes.append(episode)
 
-                print("episode:", episode, "  score:", score, "  episodetime_step:", episode_time_step, " global time:", global_step)
+                print("episode:", episode, "  score:", score, "  episode time_step:", episode_time_step, " global time:", global_step)
 
                 # print("Episode=", episode, ", ends in a number of iterations=", counter, ", with total reward=", cumulative_reward)
                 break
