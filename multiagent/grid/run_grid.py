@@ -54,15 +54,20 @@ if __name__ == "__main__":
     env = Env(max_agent_count, max_victim_count)
 
     agent_count = 2
-    victim_count = 3
+    victim_count = 4
 
     for i in range(agent_count):
-        agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        # agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         env.add_agent(agent)
 
-    for i in range(victim_count):
-        env.add_victim()
+    env.add_victim_at_pos(4, 100)
+    env.add_victim_at_pos(14, 100)
+    env.add_victim_at_pos(15, 100)
+    env.add_victim_at_pos(24, 100)
+
+    # for i in range(victim_count):
+    #     env.add_victim_at_pos()
 
     env.pack_canvas()
 
@@ -121,8 +126,8 @@ if __name__ == "__main__":
         if episode % 10 == 0:
             pylab.figure(1)
             pylab.plot(episodes, scores, 'b')
-            pylab.savefig("./save_graph/random_policy_score.png")
+            pylab.savefig("./save_graph/greedy_policy_score.png")
 
             pylab.figure(2)
             pylab.plot(episodes, episode_time_steps, 'b')
-            pylab.savefig("./save_graph/random_policy_time_step.png")
+            pylab.savefig("./save_graph/greedy_policy_time_step.png")
