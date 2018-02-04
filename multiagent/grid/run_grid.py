@@ -69,6 +69,7 @@ if __name__ == "__main__":
     global_step = 0
     episodes = []
     scores = []
+    episode_time_steps = []
 
     for episode in range(TOTAL_EPISODES):
         state_n = env.reset_n()
@@ -110,10 +111,14 @@ if __name__ == "__main__":
             # if episode ends, then break
             if done:
                 scores.append(score)
+                episode_time_steps.append(episode_time_step)
                 episodes.append(episode)
                 print("episode:", episode, "  score:", score, "  episode time_step:", episode_time_step, " global time:", global_step)
                 break
 
         if episode % 10 == 0:
             pylab.plot(episodes, scores, 'b')
-            pylab.savefig("./save_graph/random_policy.png")
+            pylab.savefig("./save_graph/random_policy_score.png")
+
+            pylab.plot(episodes, episode_time_steps, 'b')
+            pylab.savefig("./save_graph/random_policy_time_step.png")
