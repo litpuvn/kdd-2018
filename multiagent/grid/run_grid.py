@@ -71,6 +71,8 @@ if __name__ == "__main__":
     scores = []
     episode_time_steps = []
 
+    # logFile = open('./save_graph/log.txt', 'a')
+
     for episode in range(TOTAL_EPISODES):
         state_n = env.reset_n()
         counter = 0
@@ -117,8 +119,10 @@ if __name__ == "__main__":
                 break
 
         if episode % 10 == 0:
+            pylab.figure(1)
             pylab.plot(episodes, scores, 'b')
             pylab.savefig("./save_graph/random_policy_score.png")
 
+            pylab.figure(2)
             pylab.plot(episodes, episode_time_steps, 'b')
             pylab.savefig("./save_graph/random_policy_time_step.png")
