@@ -30,12 +30,21 @@ if __name__ == "__main__":
     agent_count = 1
     victim_count = 3
 
-    for i in range(agent_count):
-        agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        env.add_agent(agent)
+    # reproduce reinforcement
+    agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
+    env.add_agent_at_pos(agent, 0)
 
-    for i in range(victim_count):
-        env.add_victim()
+    env.add_victim_at_pos(5, -1)
+    env.add_victim_at_pos(11, -1)
+    env.add_victim_at_pos(17, -1)
+    env.add_victim_at_pos(24, 1)
+
+    # for i in range(agent_count):
+    #     agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+    #     env.add_agent(agent)
+    #
+    # for i in range(victim_count):
+    #     env.add_victim()
 
     env.pack_canvas()
 

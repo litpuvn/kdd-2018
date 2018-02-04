@@ -102,18 +102,18 @@ class CentralController:
 
         internal_state = np.reshape(internal_state, [1, self.state_size])
 
-        policy = self.model.predict(internal_state)[0]
+        # cannot reshape because prob must sum =1
+        policy_result = self.model.predict(internal_state)
+        policy = policy_result[0]
 
-        my_actions = []
-        for i in range(self.agent_count):
-            for j in range(self.action_size):
-                my_actions.append(j)
-
-        action_n = np.random.choice(my_actions, self.agent_count, p=policy)
+        policy_n = np.reshape(policy, [self.agent_count, self.action_size])
 
         agent_action = {}
+
         for i in range(self.agent_count):
-            agent_action[i] = action_n[i]
+            policy = policy_n[i]
+            action = np.random.choice(self.action_size, self.agent_count, p=policy)[0]
+            agent_action[i] = action
 
         return agent_action
 
@@ -144,7 +144,7 @@ class CentralController:
         reward = 0
         for v in self.victims:
             if pos == v.get_position():
-                reward = reward + 1
+                reward = v.get_reward()
 
         return reward
 

@@ -15,11 +15,12 @@ GO_LEFT = 2
 GO_RIGHT = 3
 
 class Victim(object):
-    def __init__(self, victim_id):
+    def __init__(self, victim_id, reward):
         self.id = victim_id
         self.pos = None
         self.resource_id = None
         self.rescued = False
+        self.reward = reward
 
     def get_id(self):
         return self.id
@@ -48,6 +49,8 @@ class Victim(object):
     def is_rescued(self):
         return self.rescued
 
+    def get_reward(self):
+        return self.reward
 
 class Env(tk.Tk):
     def __init__(self, max_agent_count, max_victim_count):
@@ -219,6 +222,28 @@ class Env(tk.Tk):
     def get_victims(self):
         return self.victims
 
+    def add_agent_at_pos(self, agent, pos):
+        if self._contain_agent(agent):
+            return False
+
+        if len(self.agents) >= self.max_a_count:
+            return False
+
+        pos = self.set_agent_at_position(agent, pos)
+
+        agent.set_initial_position(pos)
+
+        # add image
+        r_pixel = self.get_row_center_pixel(pos)
+        c_pixel = self.get_column_center_pixel(pos)
+
+        resource_id = self.canvas.create_image(r_pixel, c_pixel, image=self.shapes[0])
+        agent.set_resource_id(resource_id)
+
+        self.agents.append(agent)
+
+        return agent
+
     def add_agent(self, agent):
         if self._contain_agent(agent):
             return False
@@ -253,6 +278,16 @@ class Env(tk.Tk):
 
         return pos
 
+    def set_agent_at_position(self, agent, pos):
+        key = str(agent.get_id())
+        if key in self.agent_positions.keys():
+            del self.agent_positions[agent.get_id()]
+
+        self.agent_positions[agent.get_id()] = pos
+        agent.set_position(pos)
+
+        return pos
+
     def set_victim_random_position(self, victim):
         if victim.get_id() in self.victim_positions:
             del self.victim_positions[victim.get_id()]
@@ -265,17 +300,45 @@ class Env(tk.Tk):
 
         return pos
 
+    def set_victim_position(self, victim, pos):
+        if victim.get_id() in self.victim_positions:
+            del self.victim_positions[victim.get_id()]
+
+        self.victim_positions[victim.get_id()] = pos
+        victim.set_position(pos)
+
+        return pos
+
     def _generate_new_position(self, existing_positions):
         while True:
             pos = np.random.randint(0, WIDTH * HEIGHT)
             if pos not in existing_positions:
                 return pos
 
+    def add_victim_at_pos(self, pos, reward):
+        if len(self.victims) > self.max_v_count:
+            return False
+
+        v = Victim(len(self.victims), reward)
+        pos = self.set_victim_position(v, pos)
+
+        print("Victim", v.get_id(), "; pos=", v.get_position())
+
+        # add image
+        y_pixel = self.get_row_center_pixel(pos)
+        x_pixel = self.get_column_center_pixel(pos)
+        resource_id = self.canvas.create_image(x_pixel, y_pixel, image=self.shapes[2])
+        v.set_resource_id(resource_id)
+
+        self.victims.append(v)
+
+        return v
+
     def add_victim(self):
         if len(self.victims) > self.max_v_count:
             return False
 
-        v = Victim(len(self.victims))
+        v = Victim(len(self.victims), 100)
         pos = self.set_victim_random_position(v)
 
         print("Victim", v.get_id(), "; pos=", v.get_position())
