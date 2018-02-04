@@ -1,14 +1,17 @@
-import os.path
 import copy
 import pylab
 import numpy as np
-from multiagent.grid.grid_env import Env
 from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.models import Sequential
 from keras import backend as K
+import os.path
 
-class CentralController:
+EPISODES = 2500
+
+
+# this is REINFORCE Agent for GridWorld
+class AgentScheduler:
     def __init__(self, env, agents, victims):
 
         self.env = env
@@ -23,14 +26,12 @@ class CentralController:
         self.action_space = [0, 1, 2, 3, 4]
         # get size of state and action
         self.action_size = len(self.action_space)
-
-        self.state_size = self.agent_count * 3
-
+        self.state_size = 15
         self.discount_factor = 0.99
         self.learning_rate = 0.001
 
-        self.model = self._build_model()
-        self.optimizer = self._optimizer()
+        self.model = self.build_model()
+        self.optimizer = self.optimizer()
         self.states, self.actions, self.rewards = [], [], []
 
         if self.load_model:
@@ -38,21 +39,18 @@ class CentralController:
             if os.path.isfile(fname):
                 self.model.load_weights(fname)
 
-
     # state is input and probability of each action(policy) is output of network
-    def _build_model(self):
+    def build_model(self):
         model = Sequential()
-        # model.add(Dense(self.state_size * 3, input_dim=self.state_size, activation='relu'))
-        # model.add(Dense(self.state_size * 3, activation='relu'))
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
         model.add(Dense(24, activation='relu'))
-        model.add(Dense(self.action_size * self.agent_count, activation='softmax'))
+        model.add(Dense(self.action_size, activation='softmax'))
         model.summary()
         return model
 
     # create error function and training function to update policy network
-    def _optimizer(self):
-        action = K.placeholder(shape=[None, self.action_size*self.agent_count])
+    def optimizer(self):
+        action = K.placeholder(shape=[None, 5])
         discounted_rewards = K.placeholder(shape=[None, ])
 
         # Calculate cross entropy error function
@@ -69,8 +67,19 @@ class CentralController:
 
         return train
 
+    # get action from policy network
+    def get_action(self, state_n):
+
+        # build state here
+        internal_state = self._get_internal_state(state_n)
+        internal_state = np.reshape(internal_state, [1, 15])
+
+        policy = self.model.predict(internal_state)[0]
+
+        return np.random.choice(self.action_size, 1, p=policy)
+
     # calculate discounted rewards
-    def _discount_rewards(self, rewards):
+    def discount_rewards(self, rewards):
         discounted_rewards = np.zeros_like(rewards)
         running_add = 0
         for t in reversed(range(0, len(rewards))):
@@ -79,47 +88,23 @@ class CentralController:
         return discounted_rewards
 
     # save states, actions and rewards for an episode
-    def append_sample(self, state_n, action_n, reward_n):
-
-        internal_state = self._convert_to_internal_state(state_n=state_n)
-        self.states.append(internal_state)
-
-        internal_reward = self._convert_to_internal_reward(reward_n=reward_n)
-        self.rewards.append(internal_reward)
-
-        internal_action = self._convert_to_internal_action(action_n=action_n)
-        self.actions.append(internal_action)
+    def append_sample(self, state, action, reward):
+        self.states.append(state[0])
+        self.rewards.append(reward)
+        act = np.zeros(self.action_size)
+        act[action] = 1
+        self.actions.append(act)
 
     # update policy neural network
     def train_model(self):
-        discounted_rewards = np.float32(self._discount_rewards(self.rewards))
+        discounted_rewards = np.float32(self.discount_rewards(self.rewards))
         discounted_rewards -= np.mean(discounted_rewards)
         discounted_rewards /= np.std(discounted_rewards)
 
         self.optimizer([self.states, self.actions, discounted_rewards])
         self.states, self.actions, self.rewards = [], [], []
 
-    def get_action(self, state_n):
-        internal_state = self._convert_to_internal_state(state_n=state_n)
-
-        internal_state = np.reshape(internal_state, [1, self.state_size])
-
-        # cannot reshape because prob must sum =1
-        policy_result = self.model.predict(internal_state)
-        policy = policy_result[0]
-
-        policy_n = np.reshape(policy, [self.agent_count, self.action_size])
-
-        agent_action = {}
-
-        for i in range(self.agent_count):
-            policy = policy_n[i]
-            action = np.random.choice(self.action_size, self.agent_count, p=policy)[0]
-            agent_action[i] = action
-
-        return agent_action
-
-    def _convert_to_internal_state(self, state_n):
+    def _get_internal_state(self, state_n):
 
         state = []
 
@@ -127,12 +112,17 @@ class CentralController:
             state_i = state_n[i]
             coord_x = state_i[0]
             coord_y = state_i[1]
+            for v in self.victims:
+                vx = self.env.get_column_center_pixel(v.get_position())
+                vy = self.env.get_row_center_pixel(v.get_position())
+                state.append(vx - coord_x)
+                state.append(vy - coord_y)
+                # reward = self._check_for_reward(coord_x, coord_y)
+                reward = v.get_reward()
+                state.append(reward)
 
-            state.append(coord_x)
-            state.append(coord_y)
-
-            reward = self._check_for_reward(coord_x, coord_y)
-            state.append(reward)
+                if reward < 0:
+                    state.append(-1)
 
         return state
 
@@ -150,19 +140,4 @@ class CentralController:
 
         return reward
 
-    def _convert_to_internal_reward(self, reward_n):
 
-        return np.sum(reward_n)
-
-    def _convert_to_internal_action(self, action_n):
-
-        internal_action = []
-
-        for i in range(self.agent_count):
-            act = np.zeros(self.action_size)
-            agent_action = action_n[i]
-            act[agent_action] = 1
-            for j in act:
-                internal_action.append(j)
-
-        return internal_action

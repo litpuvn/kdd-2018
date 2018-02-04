@@ -14,6 +14,8 @@ GO_DOWN = 1
 GO_LEFT = 2
 GO_RIGHT = 3
 
+STEP_PENALTY = -100
+
 class Victim(object):
     def __init__(self, victim_id, reward):
         self.id = victim_id
@@ -183,12 +185,12 @@ class Env(tk.Tk):
         reward = 0
         for v in unrescued_victims:
             if next_state == self.canvas.coords(v.get_resource_id()):
-                reward = reward + 100
+                reward = reward + v.get_reward()
                 v.set_rescued()
 
         # action does not save anyone will be discounted 100
         if reward == 0:
-            reward = -100
+            reward += STEP_PENALTY
 
         unrescued_victims = self.get_unrescued_victims()
 

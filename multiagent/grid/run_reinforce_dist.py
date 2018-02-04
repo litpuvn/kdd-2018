@@ -17,7 +17,7 @@ from multiagent.grid.greedy_agent import GreedyAgent
 from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 from multiagent.grid.central_controler import CentralController
 import copy
-
+from multiagent.grid.agent_scheduler import AgentScheduler
 
 EPISODES = 1000
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     env.pack_canvas()
 
-    scheduler = CentralController(env, env.get_agents(), env.get_victims())
+    scheduler = AgentScheduler(env, env.get_agents(), env.get_victims())
 
     for episode in range(EPISODES):
         state_n = env.reset_n()
