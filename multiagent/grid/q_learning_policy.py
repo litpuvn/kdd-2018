@@ -10,6 +10,7 @@ class QLearningPolicy:
     DISCOUNT_FACTOR = 0.9
 
     EPSILON = 0.1
+    Q_TABLE = None
 
     def __init__(self, env, actions):
 
@@ -24,7 +25,7 @@ class QLearningPolicy:
             q_values = np.zeros(self.agent_count * len(actions))
             default_agent_q_table.append(q_values)
 
-        self.Q_TABLE = defaultdict(lambda: default_agent_q_table)
+        QLearningPolicy.Q_TABLE = defaultdict(lambda: default_agent_q_table)
 
     # update q function with sample <s, a, r, s'>
     def learn(self, state_n, action_n, reward_n, next_state_n):
@@ -33,8 +34,8 @@ class QLearningPolicy:
 
         next_state = self._get_state_string(next_state_n)
 
-        all_agent_actions = self.Q_TABLE[state]
-        all_next_agent_actions = self.Q_TABLE[next_state]
+        all_agent_actions = QLearningPolicy.Q_TABLE[state]
+        all_next_agent_actions = QLearningPolicy.Q_TABLE[next_state]
 
         for i in range(self.agent_count):
             action = action_n[i]
@@ -46,7 +47,7 @@ class QLearningPolicy:
 
             new_q = reward + QLearningPolicy.DISCOUNT_FACTOR * max(next_single_agent_actions)
 
-            self.Q_TABLE[state][i][action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
+            QLearningPolicy.Q_TABLE[state][i][action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
             # self.Q_TABLE[state][action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
 
     def _get_state_string(self, state_n):
@@ -72,7 +73,7 @@ class QLearningPolicy:
                 action_n.append(action)
         else:
             # take action according to the q function table
-            all_possible_agent_actions = self.Q_TABLE[state]
+            all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
             for i in range(self.agent_count):
                 action = self._arg_max(all_possible_agent_actions[i])
                 action_n.append(action)
