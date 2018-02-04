@@ -14,7 +14,7 @@ GO_DOWN = 1
 GO_LEFT = 2
 GO_RIGHT = 3
 
-STEP_PENALTY = -100
+STEP_PENALTY = -10
 
 class Victim(object):
     def __init__(self, victim_id, reward):
@@ -183,14 +183,22 @@ class Env(tk.Tk):
 
         unrescued_victims = self.get_unrescued_victims()
         reward = 0
+        min_dist = 1000000
+        agent_victim_distance = 1
         for v in unrescued_victims:
-            if next_state == self.canvas.coords(v.get_resource_id()):
+            agent_victim_distance = self.distance(agent, v)
+            if agent_victim_distance < min_dist:
+                min_dist = agent_victim_distance
+
+            if agent.get_position() == v.get_position():
                 reward = reward + v.get_reward()
                 v.set_rescued()
 
         # action does not save anyone will be discounted 100
         if reward == 0:
-            reward += STEP_PENALTY
+            reward += STEP_PENALTY*agent_victim_distance
+
+        # reward if this is a good step (close to any victims)
 
         unrescued_victims = self.get_unrescued_victims()
 
@@ -410,7 +418,7 @@ class Env(tk.Tk):
         v_x = self.get_column_center_pixel(victim.get_position())
 
         a_y = self.get_row_center_pixel(agent.get_position())
-        v_y = self.get_column_center_pixel(victim.get_position())
+        v_y = self.get_row_center_pixel(victim.get_position())
 
         return abs(a_x - v_x) + abs(a_y - v_y)
 
