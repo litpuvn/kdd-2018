@@ -52,10 +52,8 @@ if __name__ == "__main__":
 
     env = Env(max_agent_count, max_victim_count)
 
-    agent_count = 2
+    agent_count = 1
     victim_count = 3
-
-    policy = QLearningPolicy(env, env.n_actions)
 
     for i in range(agent_count):
         agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
@@ -65,6 +63,8 @@ if __name__ == "__main__":
         env.add_victim()
 
     env.pack_canvas()
+
+    policy = QLearningPolicy(env, list(range(env.n_actions)))
 
     for episode in range(1000):
         state_n = env.reset_n()
@@ -79,14 +79,14 @@ if __name__ == "__main__":
             # take action and proceed one step in the environment
 
             action_n = policy.get_action_n(state_n)
-            next_state_n = np.zeros(agent_count)
+            next_state_n = []
 
             for i in range(agent_count):
                 agent = env.get_agent(i)
                 state = str(state_n[i])
                 action = action_n[i]
                 next_state, reward, done = env.agent_step(agent, action)
-                next_state_n[i] = next_state
+                next_state_n.append(next_state)
                 reward_n[i] = reward
 
                 cumulative_reward += reward
