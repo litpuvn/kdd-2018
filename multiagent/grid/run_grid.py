@@ -55,9 +55,9 @@ if __name__ == "__main__":
     victim_count = 3
 
     for i in range(agent_count):
-        # agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        # agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         # agent = DeepReinforceAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
 
         env.add_agent(agent)

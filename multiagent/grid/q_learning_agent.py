@@ -9,23 +9,25 @@ class QLearningAgent(BaseAgent):
 
     # Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
 
+    LEARNING_RATE = 0.01
+    DISCOUNT_FACTOR = 0.9
+
     def __init__(self, actions, agent_id, env):
 
         super().__init__(agent_id, env)
 
         # actions = [0, 1, 2, 3]
         self.actions = actions
-        self.learning_rate = 0.01
-        self.discount_factor = 0.9
         self.epsilon = 0.1
+
         self.Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
 
     # update q function with sample <s, a, r, s'>
     def learn(self, state, action, reward, next_state):
         current_q = self.Q_TABLE[state][action]
         # using Bellman Optimality Equation to update q function
-        new_q = reward + self.discount_factor * max(self.Q_TABLE[next_state])
-        self.Q_TABLE[state][action] += self.learning_rate * (new_q - current_q)
+        new_q = reward + QLearningAgent.DISCOUNT_FACTOR * max(self.Q_TABLE[next_state])
+        self.Q_TABLE[state][action] += QLearningAgent.LEARNING_RATE * (new_q - current_q)
 
     # get action for the state according to the q function table
     # agent pick action of epsilon-greedy policy
