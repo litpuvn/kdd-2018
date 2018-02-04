@@ -74,8 +74,9 @@ class QLearningPolicy:
 
         state = ''
         for i in range(agent_count):
-            state_i = str(state_n[i])
-            state += state_i
+            state_i = state_n[i]
+            for j in range(len(state_i)):
+                state += str(int(state_i[j]))
 
         return state
 
