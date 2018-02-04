@@ -26,14 +26,18 @@ if __name__ == "__main__":
     env = Env(max_agent_count, max_victim_count)
 
     agent_count = 2
-    victim_count = 3
+    victim_count = 4
 
     for i in range(agent_count):
         agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
         env.add_agent(agent)
 
-    for i in range(victim_count):
-        env.add_victim()
+    # for i in range(victim_count):
+    #     env.add_victim()
+    env.add_victim_at_pos(4, 100)
+    env.add_victim_at_pos(14, 100)
+    env.add_victim_at_pos(15, 100)
+    env.add_victim_at_pos(24, 100)
 
     env.pack_canvas()
 
@@ -42,6 +46,7 @@ if __name__ == "__main__":
     global_step = 0
     episodes = []
     scores = []
+    episode_time_steps = []
 
     for episode in range(TOTAL_EPISODES):
         state_n = env.reset_n()
@@ -80,11 +85,15 @@ if __name__ == "__main__":
             if done:
                 scores.append(score)
                 episodes.append(episode)
+                episode_time_steps.append(episode_time_step)
 
                 print("episode:", episode, "  score:", score, "  episode time_step:", episode_time_step, " global time:", global_step)
-
-                # print("Episode=", episode, ", ends in a number of iterations=", counter, ", with total reward=", cumulative_reward)
                 break
         if episode % 10 == 0:
+            pylab.figure(1)
             pylab.plot(episodes, scores, 'b')
-            pylab.savefig("./save_graph/q_policy.png")
+            pylab.savefig("./save_graph/q_policy_score.png")
+
+            pylab.figure(2)
+            pylab.plot(episodes, episode_time_steps, 'b')
+            pylab.savefig("./save_graph/q_policy_time_step.png")
