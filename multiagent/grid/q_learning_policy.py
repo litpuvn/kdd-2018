@@ -78,7 +78,9 @@ class QLearningPolicy:
             if len(state_i) != 2:
                 raise Exception("Invalid sate")
 
-            state = str(int(state_i[0])) + 'x' + str(int(state_i[1]))
+            #state = str(int(state_i[0])) + 'x' + str(int(state_i[1]))
+            pos = self.env.get_pos_from_coords(state_i[0], state_i[1])
+            state = str(pos)
 
         return state
 

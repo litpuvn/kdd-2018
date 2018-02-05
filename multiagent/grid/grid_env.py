@@ -391,6 +391,12 @@ class Env(tk.Tk):
     def get_pos_from_row_and_col(self, row, col):
         return row * WIDTH + col
 
+    def get_pos_from_coords(self, coord_x, coord_y):
+        row = self.get_row_from_coord(coord_y)
+        col = self.get_col_from_coord(coord_x)
+
+        return row * WIDTH + col
+
     def get_unrescued_victims(self):
         unrescued_victims = []
         for v in self.victims:
