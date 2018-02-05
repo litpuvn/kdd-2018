@@ -79,7 +79,7 @@ class QLearningPolicy:
                 raise Exception("Invalid sate")
 
             state = str(int(state_i[0])) + 'x' + str(int(state_i[1]))
-  
+
         return state
 
     def get_action_n(self, state_n):
@@ -106,13 +106,14 @@ class QLearningPolicy:
             # take action according to the q function table
             all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
             for i in range(self.agent_count):
-                action = self._arg_max(all_possible_agent_actions[i])
+                agent_i_actions = all_possible_agent_actions[i]
+                action = self._get_indices_at_max_value(agent_i_actions)
                 action_n.append(action)
 
         return action_n
 
     @staticmethod
-    def _arg_max(state_action):
+    def _get_indices_at_max_value(state_action):
         max_index_list = []
         max_value = state_action[0]
         for index, value in enumerate(state_action):
@@ -122,4 +123,5 @@ class QLearningPolicy:
                 max_index_list.append(index)
             elif value == max_value:
                 max_index_list.append(index)
+
         return random.choice(max_index_list)
