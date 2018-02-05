@@ -75,9 +75,11 @@ class QLearningPolicy:
         state = ''
         for i in range(agent_count):
             state_i = state_n[i]
-            for j in range(len(state_i)):
-                state += str(int(state_i[j]))
+            if len(state_i) != 2:
+                raise Exception("Invalid sate")
 
+            state = str(int(state_i[0])) + 'x' + str(int(state_i[1]))
+  
         return state
 
     def get_action_n(self, state_n):
