@@ -186,9 +186,9 @@ class Env(tk.Tk):
         min_dist = 1000000
         agent_victim_distance = 1
         for v in unrescued_victims:
-            agent_victim_distance = self.step_distance(agent, v)
-            if agent_victim_distance < min_dist:
-                min_dist = agent_victim_distance
+            # agent_victim_distance = self.step_distance(agent, v)
+            # if agent_victim_distance < min_dist:
+            #     min_dist = agent_victim_distance
 
             if agent.get_position() == v.get_position():
                 reward = reward + v.get_reward()
@@ -196,7 +196,7 @@ class Env(tk.Tk):
 
         # action does not save anyone will be discounted STEP_PENALTY
         if reward == 0:
-            reward += STEP_PENALTY*agent_victim_distance
+            reward += STEP_PENALTY*1
 
         # reward if this is a good step (close to any victims)
 
