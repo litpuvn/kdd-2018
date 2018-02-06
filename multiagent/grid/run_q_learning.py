@@ -26,18 +26,20 @@ if __name__ == "__main__":
     env = Env(max_agent_count, max_victim_count)
 
     agent_count = 1
-    victim_count = 4
+    victim_count = 3
 
-    for i in range(agent_count):
-        agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        env.add_agent(agent)
+    # for i in range(agent_count):
+    #     agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+    #     env.add_agent(agent)
+    agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
+    env.add_agent_at_pos(agent, 0)
 
     # for i in range(victim_count):
     #     env.add_victim()
-    env.add_victim_at_pos(4, 100)
-    env.add_victim_at_pos(14, 100)
-    env.add_victim_at_pos(15, 100)
-    env.add_victim_at_pos(24, 100)
+    env.add_victim_at_pos(7, -100)
+    env.add_victim_at_pos(11, -100)
+    env.add_victim_at_pos(12, 100)
+    # env.add_victim_at_pos(24, 100)
 
     env.pack_canvas()
 

@@ -14,7 +14,7 @@ GO_DOWN = 1
 GO_LEFT = 2
 GO_RIGHT = 3
 
-STEP_PENALTY = -10
+STEP_PENALTY = 0
 
 class Victim(object):
     def __init__(self, victim_id, reward):
@@ -185,6 +185,7 @@ class Env(tk.Tk):
         reward = 0
         min_dist = 1000000
         agent_victim_distance = 1
+        done =False
         for v in unrescued_victims:
             # agent_victim_distance = self.step_distance(agent, v)
             # if agent_victim_distance < min_dist:
@@ -193,17 +194,18 @@ class Env(tk.Tk):
             if agent.get_position() == v.get_position():
                 reward = reward + v.get_reward()
                 v.set_rescued()
+                done = True
 
         # action does not save anyone will be discounted STEP_PENALTY
-        if reward == 0:
-            reward += STEP_PENALTY*1
+        # if reward == 0:
+        reward += STEP_PENALTY*1
 
         # reward if this is a good step (close to any victims)
 
-        unrescued_victims = self.get_unrescued_victims()
+        # unrescued_victims = self.get_unrescued_victims()
 
         # done if all victims are rescued
-        done = len(unrescued_victims) == 0
+        # done = len(unrescued_victims) == 0
 
         return [x_coord, y_coord], reward, done
 
@@ -337,7 +339,12 @@ class Env(tk.Tk):
         # add image
         y_pixel = self.get_row_center_pixel(pos)
         x_pixel = self.get_column_center_pixel(pos)
-        resource_id = self.canvas.create_image(x_pixel, y_pixel, image=self.shapes[2])
+
+        if reward >= 0:
+            resource_id = self.canvas.create_image(x_pixel, y_pixel, image=self.shapes[2])
+        else:
+            resource_id = self.canvas.create_image(x_pixel, y_pixel, image=self.shapes[1])
+
         v.set_resource_id(resource_id)
 
         self.victims.append(v)
