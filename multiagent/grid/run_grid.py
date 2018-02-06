@@ -45,7 +45,7 @@ import pylab
 #         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
 
 
-TOTAL_EPISODES = 2500
+TOTAL_EPISODES = 500
 
 if __name__ == "__main__":
     max_agent_count = 10
