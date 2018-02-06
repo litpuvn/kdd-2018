@@ -334,7 +334,7 @@ class Env(tk.Tk):
         v = Victim(len(self.victims), reward)
         pos = self.set_victim_position(v, pos)
 
-        print("Victim", v.get_id(), "; pos=", v.get_position())
+        # print("Victim", v.get_id(), "; pos=", v.get_position())
 
         # add image
         y_pixel = self.get_row_center_pixel(pos)
