@@ -94,7 +94,7 @@ class QLearningPolicy:
         #     action_n.append(action)
 
         state_space_len = len(QLearningPolicy.Q_TABLE)
-        print("state space: ", state_space_len)
+        # print("state space: ", state_space_len)
 
         if np.random.rand() < QLearningPolicy.EPSILON and state_space_len < self.state_space:
             # take random action
