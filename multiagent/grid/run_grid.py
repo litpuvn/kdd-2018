@@ -56,18 +56,21 @@ if __name__ == "__main__":
     agent_count = 2
     victim_count = 4
 
-    for i in range(agent_count):
-        # agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-        env.add_agent(agent)
+    # for i in range(agent_count):
+    #     agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+    #     env.add_agent(agent)
+    agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
+    env.add_agent_at_pos(agent, 0)
 
-    env.add_victim_at_pos(4, 100)
-    env.add_victim_at_pos(14, 100)
-    env.add_victim_at_pos(15, 100)
-    env.add_victim_at_pos(24, 100)
+    agent2 = QLearningAgent(actions=list(range(env.n_actions)), agent_id=1, env=env)
+    env.add_agent_at_pos(agent2, 20)
 
     # for i in range(victim_count):
-    #     env.add_victim_at_pos()
+    #     env.add_victim()
+    env.add_victim_at_pos(7, 100)
+    env.add_victim_at_pos(11, 100)
+    env.add_victim_at_pos(12, 100)
+    env.add_victim_at_pos(24, 100)
 
     env.pack_canvas()
 
@@ -113,7 +116,7 @@ if __name__ == "__main__":
                 score += reward
                 score_per_episode_time_step += reward
 
-            print("episode:", episode, " episode time_step:", episode_time_step, " score:", score_per_episode_time_step)
+            # print("episode:", episode, " episode time_step:", episode_time_step, " score:", score_per_episode_time_step)
 
             # if episode ends, then break
             if done:
