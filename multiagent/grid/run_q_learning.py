@@ -17,7 +17,7 @@ from multiagent.grid.greedy_agent import GreedyAgent
 from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 import pylab
 
-TOTAL_EPISODES = 2500
+TOTAL_EPISODES = 1000
 
 if __name__ == "__main__":
     max_agent_count = 10
