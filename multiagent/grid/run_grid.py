@@ -59,10 +59,11 @@ if __name__ == "__main__":
     # for i in range(agent_count):
     #     agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
     #     env.add_agent(agent)
-    agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
+
+    agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
     env.add_agent_at_pos(agent, 0)
 
-    agent2 = QLearningAgent(actions=list(range(env.n_actions)), agent_id=1, env=env)
+    agent2 = GreedyAgent(actions=list(range(env.n_actions)), agent_id=1, env=env)
     env.add_agent_at_pos(agent2, 20)
 
     # for i in range(victim_count):
