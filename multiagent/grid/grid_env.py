@@ -14,7 +14,7 @@ GO_DOWN = 1
 GO_LEFT = 2
 GO_RIGHT = 3
 
-STEP_PENALTY = 0
+STEP_PENALTY = -10
 
 class Victim(object):
     def __init__(self, victim_id, reward):
@@ -194,7 +194,7 @@ class Env(tk.Tk):
             if agent.get_position() == v.get_position():
                 reward = reward + v.get_reward()
                 v.set_rescued()
-                done = True
+                # done = True
 
         # action does not save anyone will be discounted STEP_PENALTY
         # if reward == 0:
@@ -202,10 +202,10 @@ class Env(tk.Tk):
 
         # reward if this is a good step (close to any victims)
 
-        # unrescued_victims = self.get_unrescued_victims()
+        unrescued_victims = self.get_unrescued_victims()
 
         # done if all victims are rescued
-        # done = len(unrescued_victims) == 0
+        done = len(unrescued_victims) == 0
 
         return [x_coord, y_coord], reward, done
 
