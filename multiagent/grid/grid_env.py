@@ -197,8 +197,9 @@ class Env(tk.Tk):
                 # done = True
 
         # action does not save anyone will be discounted STEP_PENALTY
-        # if reward == 0:
-        reward += STEP_PENALTY*1
+
+        if np.sum(base_action) != 0:
+            reward += STEP_PENALTY*1
 
         # reward if this is a good step (close to any victims)
 

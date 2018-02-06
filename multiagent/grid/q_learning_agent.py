@@ -19,7 +19,7 @@ class QLearningAgent(BaseAgent):
         super().__init__(agent_id, env)
 
         # actions = [0, 1, 2, 3]
-        self.actions = actions
+        self.actions = [0, 1, 2, 3, 4]
 
         self.Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
 

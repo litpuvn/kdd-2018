@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     env.pack_canvas()
 
-    policy = QLearningPolicy(env, list(range(env.n_actions)))
+    policy = QLearningPolicy(env)
 
     global_step = 0
     episodes = []

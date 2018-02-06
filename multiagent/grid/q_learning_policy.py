@@ -12,12 +12,12 @@ class QLearningPolicy:
     EPSILON = 0.1
     Q_TABLE = None
 
-    def __init__(self, env, actions):
+    def __init__(self, env):
 
         self.env = env
         # actions = [0, 1, 2, 3]
-        self.actions = actions
-        self.action_count = len(actions)
+        self.actions = [0, 1, 2, 3, 4]
+        self.action_count = len( self.actions)
 
         self.agent_count = len(self.env.get_agents())
 
