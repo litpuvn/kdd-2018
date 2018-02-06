@@ -21,18 +21,11 @@ class QLearningPolicy:
 
         self.agent_count = len(self.env.get_agents())
 
-        default_agent_q_table = []
-        for i in range(self.agent_count):
-            q_values = np.zeros(len(actions))
-            default_agent_q_table.append(q_values)
-
-        QLearningPolicy.Q_TABLE = defaultdict(lambda: default_agent_q_table)
+        QLearningPolicy.Q_TABLE = defaultdict(lambda: list(0 for i in range(self.agent_count*self.action_count)))
 
         self.state_space = 1
         for i in range(self.agent_count):
             self.state_space *= (25-i)
-
-        a = 1
 
     # def build_q_table(self):
     #     for pos in range(25):
@@ -53,20 +46,24 @@ class QLearningPolicy:
 
         next_state = self._get_state_string(next_state_n)
 
-        all_agent_actions = QLearningPolicy.Q_TABLE[state]
-        all_next_agent_actions = QLearningPolicy.Q_TABLE[next_state]
+        agent_next_actions = QLearningPolicy.Q_TABLE[next_state]
 
         for i in range(self.agent_count):
             action = action_n[i]
             reward = reward_n[i]
-            single_agent_actions = all_agent_actions[i]
-            current_q = single_agent_actions[action]
-            next_single_agent_actions = all_next_agent_actions[i]
+
+            agent_i_action_offset = i * self.action_count
+            agent_i_next_actions = agent_next_actions[agent_i_action_offset:(agent_i_action_offset+self.action_count)]
+
+            current_q = QLearningPolicy.Q_TABLE[state][agent_i_action_offset + action]
+
             # using Bellman Optimality Equation to update q function
 
-            new_q = reward + QLearningPolicy.DISCOUNT_FACTOR * max(next_single_agent_actions)
+            new_q = reward + QLearningPolicy.DISCOUNT_FACTOR * max(agent_i_next_actions)
 
-            QLearningPolicy.Q_TABLE[state][i][action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
+            QLearningPolicy.Q_TABLE[state][agent_i_action_offset + action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
+
+            t = 1
             # self.Q_TABLE[state][action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
 
     def _get_state_string(self, state_n):
@@ -108,7 +105,9 @@ class QLearningPolicy:
             # take action according to the q function table
             all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
             for i in range(self.agent_count):
-                agent_i_actions = all_possible_agent_actions[i]
+                agent_action_offset = i * self.action_count
+                agent_action_end_offset = agent_action_offset + self.action_count
+                agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
                 action = self._get_indices_at_max_value(agent_i_actions)
                 action_n.append(action)
 
