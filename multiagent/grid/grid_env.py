@@ -5,9 +5,9 @@ from PIL import ImageTk, Image
 
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
-UNIT = 100  # pixels
-HEIGHT = 5  # grid height
-WIDTH = 5  # grid width
+UNIT = 10  # pixels
+HEIGHT = 50  # grid height
+WIDTH = 50  # grid width
 
 GO_UP = 0
 GO_DOWN = 1
@@ -260,11 +260,11 @@ class Env(tk.Tk):
 
         return agent
 
-    def add_agent_at_row_col(self, row, col):
+    def add_agent_at_row_col(self, agent, row, col):
         pos = self.get_pos_from_row_and_col(row, col)
 
-        return self.add_agent_at_pos(pos)
-    
+        return self.add_agent_at_pos(agent, pos)
+
     def add_agent(self, agent):
         if self._contain_agent(agent):
             return False
