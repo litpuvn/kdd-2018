@@ -260,6 +260,11 @@ class Env(tk.Tk):
 
         return agent
 
+    def add_agent_at_row_col(self, row, col):
+        pos = self.get_pos_from_row_and_col(row, col)
+
+        return self.add_agent_at_pos(pos)
+    
     def add_agent(self, agent):
         if self._contain_agent(agent):
             return False
@@ -330,6 +335,12 @@ class Env(tk.Tk):
             pos = np.random.randint(0, WIDTH * HEIGHT)
             if pos not in existing_positions:
                 return pos
+
+    def add_victim_at_row_col(self, row, col, reward):
+
+        pos = self.get_pos_from_row_and_col(row, col)
+
+        return self.add_victim_at_pos(pos, reward)
 
     def add_victim_at_pos(self, pos, reward):
         if len(self.victims) > self.max_v_count:
