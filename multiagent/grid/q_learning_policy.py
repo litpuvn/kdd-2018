@@ -81,6 +81,24 @@ class QLearningPolicy:
 
         return state
 
+    def get_agent_action(self, agent_index, state_n):
+        state = self._get_state_string(state_n)
+
+        # if np.random.rand() < QLearningPolicy.EPSILON:
+        #     # take random action
+        #     action = np.random.choice(self.actions)
+        # else:
+
+            # take action according to the q function table
+        all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
+        agent_action_offset = agent_index * self.action_count
+        agent_action_end_offset = agent_action_offset + self.action_count
+        agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
+
+        action = self._get_indices_at_max_value(agent_i_actions)
+
+        return action
+
     def get_action_n(self, state_n):
         action_n = []
         agent_count = len(self.env.get_agents())

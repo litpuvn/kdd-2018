@@ -39,6 +39,13 @@ if __name__ == "__main__":
 
     # for i in range(victim_count):
     #     env.add_victim()
+
+    # env.add_victim_at_pos(7, -100)
+    # env.add_victim_at_pos(11, -100)
+    # env.add_victim_at_pos(12, 100)
+    # env.add_victim_at_pos(24, 100)
+
+    # good for beating greedy first
     env.add_victim_at_pos(7, 100)
     env.add_victim_at_pos(9, 100)
     env.add_victim_at_pos(12, 100)
@@ -69,19 +76,22 @@ if __name__ == "__main__":
             # take action and proceed one step in the environment
             global_step += 1
             episode_time_step += 1
-            action_n = policy.get_action_n(state_n)
-            next_state_n = []
+            next_state_n = copy.deepcopy(state_n)
 
+            action_n = []
             for i in range(agent_count):
                 agent = env.get_agent(i)
-                state = str(state_n[i])
-                action = action_n[i]
+
+                action = policy.get_agent_action(i, next_state_n)
+
                 next_state, reward, done = env.agent_step(agent, action)
-                next_state_n.append(next_state)
+                next_state_n[i] = copy.deepcopy(next_state)
                 reward_n[i] = reward
 
                 cumulative_reward += reward
                 score += reward
+
+                action_n.append(action)
 
             policy.learn(state_n, action_n, reward_n, next_state_n)
             state_n = copy.deepcopy(next_state_n)
