@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # for i in range(victim_count):
     #     env.add_victim()
     env.add_victim_at_pos(7, 100)
-    env.add_victim_at_pos(11, 100)
+    env.add_victim_at_pos(9, 100)
     env.add_victim_at_pos(12, 100)
     env.add_victim_at_pos(24, 100)
 

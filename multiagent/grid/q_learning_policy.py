@@ -16,7 +16,7 @@ class QLearningPolicy:
 
         self.env = env
         # actions = [0, 1, 2, 3]
-        self.actions = [0, 1, 2, 3, 4]
+        self.actions = [0, 1, 2, 3]
         self.action_count = len( self.actions)
 
         self.agent_count = len(self.env.get_agents())
