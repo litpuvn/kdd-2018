@@ -5,9 +5,9 @@ from PIL import ImageTk, Image
 
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
-UNIT = 10  # pixels
-HEIGHT = 50  # grid height
-WIDTH = 50  # grid width
+UNIT = 100  # pixels
+HEIGHT = 5  # grid height
+WIDTH = 5  # grid width
 
 GO_UP = 0
 GO_DOWN = 1
