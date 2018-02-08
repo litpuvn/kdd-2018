@@ -14,14 +14,14 @@ class GreedyAgent(BaseAgent):
         # 4 represents stays still
         self.actions = [0, 1, 2, 3, 4]
 
-
-
     def get_action(self, state):
 
         # find closest victims here
-        v = self.env.get_closest_victim(self)
+        v = self.env.get_closest_victim(self, unrescued_victims_only=not self.is_distributed())
 
-        if v is None or (self.get_position() == v.get_position()):
+        if v is None:
+            action = 4 # stay still
+        elif self.get_position() == v.get_position():
             action = 4 # stay still
         else:
             action = self.env.action_to_go_to_victim(self, v)

@@ -55,3 +55,8 @@ class BaseAgent:
 
     def get_rescued_victims(self):
         return self.rescued_victims
+
+    def reset_rescued_victims(self):
+        self.rescued_victims = []
+
+        return True

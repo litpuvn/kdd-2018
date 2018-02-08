@@ -137,6 +137,7 @@ class Env(tk.Tk):
         for a in self.agents:
             initial_pos = a.get_initial_position()
             a.set_position(initial_pos)
+            a.reset_rescued_victims()
 
             x_coord = self.get_column_center_pixel(initial_pos)
             y_coord = self.get_row_center_pixel(initial_pos)
@@ -184,31 +185,22 @@ class Env(tk.Tk):
         pos = self.get_pos_from_row_and_col(row, col)
         agent.set_position(pos)
 
-        unrescued_victims = self.get_unrescued_victims()
         reward = 0
-        min_dist = 1000000
-        agent_victim_distance = 1
-        done =False
-        for v in unrescued_victims:
-            # agent_victim_distance = self.step_distance(agent, v)
-            # if agent_victim_distance < min_dist:
-            #     min_dist = agent_victim_distance
-
+        for v in self.victims:
             if agent.get_position() == v.get_position():
-                reward = reward + v.get_reward()
-                v.set_rescued()
+                agent.add_rescued_victims(v)
+
+                if not v.is_rescued():
+                    reward = reward + v.get_reward()
+                    v.set_rescued()
+
                 # done = True
 
         # action does not save anyone will be discounted STEP_PENALTY
-
-        # if np.sum(base_action) != 0:
         reward += STEP_PENALTY*1
 
-        # reward if this is a good step (close to any victims)
-
-        unrescued_victims = self.get_unrescued_victims()
-
         # done if all victims are rescued
+        unrescued_victims = self.get_unrescued_victims()
         done = len(unrescued_victims) == 0
 
         return [x_coord, y_coord], reward, done
@@ -427,9 +419,14 @@ class Env(tk.Tk):
 
         return unrescued_victims
 
-    def get_closest_victim(self, agent):
+    # unrescued_victims_only: whether to compare distance with victims in unrescued list only or all victims
+    def get_closest_victim(self, agent, unrescued_victims_only):
 
         unrescued_victims = self.get_unrescued_victims()
+
+        if unrescued_victims_only == False:
+            unrescued_victims = self.get_unreached_victims_by_agent(agent)
+
         min_distance = 100000000
         closest_victim = None
 
@@ -440,6 +437,24 @@ class Env(tk.Tk):
                 closest_victim = v
 
         return closest_victim
+
+    def get_unreached_victims_by_agent(self, agent):
+
+        visited_victims = agent.get_rescued_victims()
+        result = []
+
+        for vic in self.victims:
+            if not self.list_contain_item(visited_victims, vic):
+                result.append(vic)
+
+        return result
+
+    def list_contain_item(self, object_list, item):
+        for i in object_list:
+            if i.get_id() == item.get_id():
+                return True
+
+        return False
 
 
     # coordinate distance
