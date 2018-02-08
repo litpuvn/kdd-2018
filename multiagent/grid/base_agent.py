@@ -1,12 +1,13 @@
 
 class BaseAgent:
 
-    def __init__(self, agent_id, env):
+    def __init__(self, agent_id, env, options):
         self.agent_id = agent_id
         self.resource_id = None
         self.pos = None
         self.init_pos = None
         self.env = env
+        self.options = options
 
     def get_id(self):
         return self.agent_id
@@ -35,3 +36,9 @@ class BaseAgent:
     # by default, the agent does not have capability to learn anything
     def learn(self, state, action, reward, next_state):
         a =1
+
+    def is_distributed(self):
+        if 'distributed' not in self.options:
+            return False
+
+        return self.options['distributed']
