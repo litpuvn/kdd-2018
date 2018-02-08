@@ -62,7 +62,7 @@ if __name__ == "__main__":
     agent_count = len(volunteer_distribution)
 
     for i in range(agent_count):
-        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env, options={'distributed': True})
         row_col = volunteer_distribution[i]
         if len(row_col) != 2:
             raise Exception('Invalid volunteer position')
