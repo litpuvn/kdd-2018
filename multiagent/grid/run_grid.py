@@ -15,7 +15,7 @@ from multiagent.grid.random_action_agent import RandomActionAgent
 from multiagent.grid.greedy_agent import GreedyAgent
 from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 import pylab
-
+from multiagent.grid.distribution import Distribution
 # if __name__ == '__main__':
 #
 #
@@ -48,30 +48,48 @@ import pylab
 TOTAL_EPISODES = 500
 
 if __name__ == "__main__":
-    max_agent_count = 10
-    max_victim_count = 10
+    max_agent_count = 50
+    max_victim_count = 50
 
     env = Env(max_agent_count, max_victim_count)
 
     agent_count = 2
-    victim_count = 4
+    victim_count = 2
 
-    # for i in range(agent_count):
-    #     agent = QLearningAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
-    #     env.add_agent(agent)
+    distribution = Distribution()
 
-    agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
-    env.add_agent_at_pos(agent, 0)
+    volunteer_distribution = distribution.get_distribution_of_volunteers()
+    agent_count = len(volunteer_distribution)
 
-    agent2 = GreedyAgent(actions=list(range(env.n_actions)), agent_id=1, env=env)
-    env.add_agent_at_pos(agent2, 20)
+    for i in range(agent_count):
+        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env)
+        row_col = volunteer_distribution[i]
+        if len(row_col) != 2:
+            raise Exception('Invalid volunteer position')
+
+        env.add_agent_at_row_col(agent, row_col[0], row_col[1])
+
+    # agent2 = GreedyAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
+    # env.add_agent_at_pos(agent2, 22)
+    #
+    # agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=1, env=env)
+    # env.add_agent_at_pos(agent, 22)
+
+    victim_distribution = distribution.get_distribution_of_vitims()
+    victim_count = len(victim_distribution)
+    for i in range(victim_count):
+        row_col = victim_distribution[i]
+        if len(row_col) != 2:
+            raise Exception('Invalid victim position')
+
+        env.add_victim_at_row_col(row_col[0], row_col[1], 100)
 
     # for i in range(victim_count):
     #     env.add_victim()
-    env.add_victim_at_pos(7, 100)
-    env.add_victim_at_pos(11, 100)
-    env.add_victim_at_pos(12, 100)
-    env.add_victim_at_pos(24, 100)
+    # env.add_victim_at_pos(5, 100)
+    # env.add_victim_at_pos(4, 100)
+    # env.add_victim_at_pos(12, 100)
+    # env.add_victim_at_pos(24, 100)
 
     env.pack_canvas()
 

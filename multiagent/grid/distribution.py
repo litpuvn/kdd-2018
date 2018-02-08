@@ -2,6 +2,7 @@ class Distribution:
 
     def __init__(self):
 
+        # mapping
         self.volunteers = [
             [2, 30],
             [4, 2],
@@ -57,6 +58,19 @@ class Distribution:
             [42, 24],
             [42, 25],
             [49, 2]
+        ]
+
+        # testing
+        self.volunteers = [
+            [4, 0],
+            [0, 0]
+        ]
+
+        self.victims = [
+            [1, 2],
+            [1, 4],
+            [2, 2],
+            [4, 4]
         ]
 
     def get_distribution_of_vitims(self):
