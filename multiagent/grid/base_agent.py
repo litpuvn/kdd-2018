@@ -8,6 +8,7 @@ class BaseAgent:
         self.init_pos = None
         self.env = env
         self.options = options
+        self.rescued_victims = []
 
     def get_id(self):
         return self.agent_id
@@ -42,3 +43,15 @@ class BaseAgent:
             return False
 
         return self.options['distributed']
+
+    def add_rescued_victims(self, victim):
+        for v in self.rescued_victims:
+            if v.get_id == victim.get_id():
+                return False
+
+        self.rescued_victims.append(victim)
+
+        return self.rescued_victims
+
+    def get_rescued_victims(self):
+        return self.rescued_victims
