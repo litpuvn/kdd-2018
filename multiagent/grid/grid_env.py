@@ -19,6 +19,7 @@ GO_LEFT = 2
 GO_RIGHT = 3
 
 STEP_PENALTY = -10
+INVALID_STEP_PENALTY = -100
 
 class Victim(object):
     def __init__(self, victim_id, reward):
@@ -161,18 +162,29 @@ class Env(tk.Tk):
         base_action = np.array([0, 0])
         self.render()
 
-        if action == 0:  # up
+        reward = 0
+
+        if action == GO_UP:  # up
             if state[1] > UNIT:
                 base_action[1] -= UNIT
-        elif action == 1:  # down
+            else:
+                reward = INVALID_STEP_PENALTY
+        elif action == GO_DOWN:  # down
             if state[1] < (HEIGHT - 1) * UNIT:
                 base_action[1] += UNIT
-        elif action == 2:  # left
+            else:
+                reward = INVALID_STEP_PENALTY
+
+        elif action == GO_LEFT:  # left
             if state[0] > UNIT:
                 base_action[0] -= UNIT
-        elif action == 3:  # right
+            else:
+                reward = INVALID_STEP_PENALTY
+        elif action == GO_RIGHT:  # right
             if state[0] < (WIDTH - 1) * UNIT:
                 base_action[0] += UNIT
+            else:
+                reward = INVALID_STEP_PENALTY
 
         # move agent
         self.canvas.move(agent_resource_id, base_action[0], base_action[1])
@@ -189,7 +201,6 @@ class Env(tk.Tk):
         pos = self.get_pos_from_row_and_col(row, col)
         agent.set_position(pos)
 
-        reward = 0
         for v in self.victims:
             if agent.get_position() == v.get_position():
                 agent.add_rescued_victims(v)
