@@ -3,3 +3,4 @@ multiagent/__pycache__/
 multiagent/scenarios/__pycache__/
 multiagent/grid/__pycache__/
 multiagent/grid/save_graph/
+multiagent/grid/log.txt

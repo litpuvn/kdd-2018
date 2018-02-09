@@ -2,6 +2,8 @@ import time
 import numpy as np
 import tkinter as tk
 from PIL import ImageTk, Image
+import logging
+import sys
 
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
@@ -498,3 +500,18 @@ class Env(tk.Tk):
                 return GO_DOWN
 
         raise Exception('Unkown situation: ax=' + str(a_x) + ";ay=" + str(a_y) + ";apos=" + str(agent.get_position()) + ";vx=" + str(v_x) + ";vy=" + str(v_y)  + ";vpos=" + str(victim.get_position()))
+
+    @staticmethod
+    def setup_custom_logger(name, level):
+        formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
+                                      datefmt='%Y-%m-%d %H:%M:%S')
+        handler = logging.FileHandler('log.txt', mode='w')
+        handler.setFormatter(formatter)
+        screen_handler = logging.StreamHandler(stream=sys.stdout)
+        screen_handler.setFormatter(formatter)
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        logger.addHandler(handler)
+        logger.addHandler(screen_handler)
+
+        return logger
