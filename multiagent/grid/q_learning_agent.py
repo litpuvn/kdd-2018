@@ -14,9 +14,9 @@ class QLearningAgent(BaseAgent):
 
     EPSILON = 0.1
 
-    def __init__(self, actions, agent_id, env):
+    def __init__(self, actions, agent_id, env, options):
 
-        super().__init__(agent_id, env)
+        super().__init__(agent_id, env, options=options)
 
         # actions = [0, 1, 2, 3]
         self.actions = [0, 1, 2, 3, 4]

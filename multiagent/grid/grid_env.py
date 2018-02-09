@@ -5,9 +5,11 @@ from PIL import ImageTk, Image
 
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
-UNIT = 100  # pixels
-HEIGHT = 5  # grid height
-WIDTH = 5  # grid width
+UNIT = 40  # pixels
+HEIGHT = 10  # grid height
+WIDTH = 10  # grid width
+
+IMAGE_ICON_SIZE = 25
 
 GO_UP = 0
 GO_DOWN = 1
@@ -95,11 +97,11 @@ class Env(tk.Tk):
 
     def load_images(self):
         rectangle = PhotoImage(
-            Image.open("../img/rectangle.png").resize((65, 65)))
+            Image.open("../img/rectangle.png").resize((IMAGE_ICON_SIZE, IMAGE_ICON_SIZE)))
         triangle = PhotoImage(
-            Image.open("../img/triangle.png").resize((65, 65)))
+            Image.open("../img/triangle.png").resize((IMAGE_ICON_SIZE, IMAGE_ICON_SIZE)))
         circle = PhotoImage(
-            Image.open("../img/circle.png").resize((65, 65)))
+            Image.open("../img/circle.png").resize((IMAGE_ICON_SIZE, IMAGE_ICON_SIZE)))
 
         return rectangle, triangle, circle
 
