@@ -538,7 +538,7 @@ class Env(tk.Tk):
         elif action == GO_LEFT:
             origin_x, origin_y = 1, int(UNIT / 2) - 8
         elif action == GO_RIGHT:
-            origin_x, origin_y = UNIT - 25, int(UNIT / 2) - 8
+            origin_x, origin_y = UNIT - 30, int(UNIT / 2) - 8
         else:
             origin_x, origin_y = 0, 0
 
