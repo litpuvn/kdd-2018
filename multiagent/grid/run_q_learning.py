@@ -83,7 +83,7 @@ if __name__ == "__main__":
     episode_time_steps = []
 
     for episode in range(TOTAL_EPISODES):
-        # state_n is position of each agent {agent_0: [x1, y1], agent_1: [x2, y2]}
+        # state_n is position of each agent {agent_0: [r1, c1], agent_1: [r2, c2]}
         state_n = env.reset_n()
         counter = 0
         cumulative_reward = 0
@@ -107,6 +107,7 @@ if __name__ == "__main__":
 
                 action = policy.get_agent_action(i, next_state_n)
 
+                # logger.info("state=" + action)
                 next_state, reward, done = env.agent_step(agent, action)
                 next_state_n[i] = copy.deepcopy(next_state)
                 reward_n[i] = reward

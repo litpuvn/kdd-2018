@@ -8,8 +8,8 @@ import sys
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
 UNIT = 80  # pixels
-HEIGHT = 10  # grid height
-WIDTH = 10  # grid width
+HEIGHT = 5  # grid height
+WIDTH = 5  # grid width
 
 IMAGE_ICON_SIZE = 25
 
@@ -148,7 +148,7 @@ class Env(tk.Tk):
 
             self.canvas.coords(a.get_resource_id(), [x_coord, y_coord])
 
-            states[a.get_id()] = [x_coord, y_coord]
+            states[a.get_id()] = [self.get_row(initial_pos), self.get_col(initial_pos)]
 
         return states
 
@@ -207,7 +207,7 @@ class Env(tk.Tk):
         unrescued_victims = self.get_unrescued_victims()
         done = len(unrescued_victims) == 0
 
-        return [x_coord, y_coord], reward, done
+        return [row, col], reward, done
 
     def render(self):
         time.sleep(0.03)
