@@ -83,6 +83,7 @@ if __name__ == "__main__":
     episode_time_steps = []
 
     for episode in range(TOTAL_EPISODES):
+        # state_n is position of each agent {agent_0: [x1, y1], agent_1: [x2, y2]}
         state_n = env.reset_n()
         counter = 0
         cumulative_reward = 0
@@ -114,6 +115,8 @@ if __name__ == "__main__":
                 score += reward
 
                 action_n.append(action)
+
+                env.print_value_all(QLearningPolicy.Q_TABLE)
 
             policy.learn(state_n, action_n, reward_n, next_state_n)
             state_n = copy.deepcopy(next_state_n)

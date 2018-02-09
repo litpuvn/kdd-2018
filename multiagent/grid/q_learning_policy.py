@@ -82,6 +82,8 @@ class QLearningPolicy:
         return state
 
     def get_agent_action(self, agent_index, state_n):
+
+        # state string is the pos index mapping to all scores if move left, right, up and down
         state = self._get_state_string(state_n)
 
         # if np.random.rand() < QLearningPolicy.EPSILON:

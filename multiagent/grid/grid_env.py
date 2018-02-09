@@ -7,7 +7,7 @@ import sys
 
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
-UNIT = 40  # pixels
+UNIT = 80  # pixels
 HEIGHT = 10  # grid height
 WIDTH = 10  # grid width
 
@@ -515,3 +515,35 @@ class Env(tk.Tk):
         logger.addHandler(screen_handler)
 
         return logger
+
+    def print_value_all(self, q_table):
+        for i in self.texts:
+            self.canvas.delete(i)
+        self.texts.clear()
+        for i in range(HEIGHT):
+            for j in range(WIDTH):
+                for action in range(0, 4):
+                    state = self.get_pos_from_row_and_col(i, j)
+                    if str(state) in q_table.keys():
+                        temp = q_table[str(state)][action]
+                        self.text_value(j, i, round(temp, 2), action)
+
+    def text_value(self, row, col, contents, action, font='Helvetica', size=10,
+                   style='normal', anchor="nw"):
+
+        if action == GO_UP:
+            origin_x, origin_y = int(UNIT/2)-5, 1
+        elif action == GO_DOWN:
+            origin_x, origin_y = int(UNIT/2)-5, UNIT - 15
+        elif action == GO_LEFT:
+            origin_x, origin_y = 1, int(UNIT / 2) - 8
+        elif action == GO_RIGHT:
+            origin_x, origin_y = UNIT - 25, int(UNIT / 2) - 8
+        else:
+            origin_x, origin_y = 0, 0
+
+        x, y = origin_x + (UNIT * col), origin_y + (UNIT * row)
+        font = (font, str(size), style)
+        text = self.canvas.create_text(x, y, fill="black", text=contents,
+                                       font=font, anchor=anchor)
+        return self.texts.append(text)
