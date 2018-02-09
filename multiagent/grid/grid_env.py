@@ -522,11 +522,11 @@ class Env(tk.Tk):
         self.texts.clear()
         for i in range(HEIGHT):
             for j in range(WIDTH):
-                for action in range(0, 4):
+                for action in range(self.n_actions):
                     state = self.get_pos_from_row_and_col(i, j)
                     if str(state) in q_table.keys():
                         temp = q_table[str(state)][action]
-                        self.text_value(j, i, round(temp, 2), action)
+                        self.text_value(i, j, round(temp, 2), action)
 
     def text_value(self, row, col, contents, action, font='Helvetica', size=10,
                    style='normal', anchor="nw"):

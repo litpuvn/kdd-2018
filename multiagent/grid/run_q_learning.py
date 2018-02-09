@@ -116,10 +116,9 @@ if __name__ == "__main__":
 
                 action_n.append(action)
 
-                env.print_value_all(QLearningPolicy.Q_TABLE)
-
             policy.learn(state_n, action_n, reward_n, next_state_n)
             state_n = copy.deepcopy(next_state_n)
+            env.print_value_all(QLearningPolicy.Q_TABLE)
 
             # if episode ends, then break
             if done:
