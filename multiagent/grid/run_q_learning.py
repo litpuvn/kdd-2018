@@ -19,7 +19,7 @@ import pylab
 from multiagent.grid.distribution import Distribution
 import logging
 
-TOTAL_EPISODES = 2500
+TOTAL_EPISODES = 102500
 
 if __name__ == "__main__":
     max_agent_count = 50
@@ -77,6 +77,7 @@ if __name__ == "__main__":
 
     policy = QLearningPolicy(env)
     logger = Env.setup_custom_logger("app", logging.INFO)
+    q_table_logger = Env.setup_custom_logger("qtable", logging.INFO, 'q_table.log')
     global_step = 0
     episodes = []
     scores = []
@@ -101,16 +102,18 @@ if __name__ == "__main__":
             episode_time_step += 1
             next_state_n = copy.deepcopy(state_n)
 
-            # action_n = []
+            action_n = []
             action_n = policy.get_action_n(state_n)
 
             for i in range(agent_count):
                 agent = env.get_agent(i)
-                # action = policy.get_agent_action(i, next_state_n)
                 action = action_n[i]
-
+                # action = policy.get_agent_action(i, next_state_n)
+                state =  state_n[i]
                 next_state, reward, done = env.agent_step(agent, action)
-                agent.set_last_action(action)
+
+                if state[0] != next_state[0] or state[1] != next_state[1]:
+                    agent.set_last_action(action)
 
                 next_state_n[i] = copy.deepcopy(next_state)
                 reward_n[i] = reward
@@ -120,11 +123,12 @@ if __name__ == "__main__":
 
                 # action_n.append(action)
 
-            logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(reward_n) + "; next_state=" + str(next_state_n))
-            for log_r in policy.get_qtable():
-                logger.info(log_r)
-
             policy.learn(state_n, action_n, reward_n, next_state_n)
+
+            # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(
+            #     reward_n) + "; next_state=" + str(next_state_n))
+
+
             state_n = copy.deepcopy(next_state_n)
             env.print_value_all(QLearningPolicy.Q_TABLE)
 
@@ -146,3 +150,6 @@ if __name__ == "__main__":
             pylab.figure(2)
             pylab.plot(episodes, episode_time_steps, 'b')
             pylab.savefig("./save_graph/q_policy_time_step.png")
+
+            for log_r in policy.get_qtable():
+                q_table_logger.info(log_r)

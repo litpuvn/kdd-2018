@@ -75,10 +75,10 @@ class Distribution:
         ]
 
         self.victims = [
-            [1, 2, -10],
-            [2, 1, -10],
-            [2, 2,  100],
-            [4, 2,  100]
+            [1, 2, -100],
+            [2, 1, -100],
+            [2, 2,  50],
+            [4, 2,  50]
         ]
 
     def get_distribution_of_vitims(self):

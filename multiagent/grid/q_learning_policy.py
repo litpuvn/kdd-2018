@@ -2,6 +2,8 @@ import numpy as np
 import random
 from multiagent.grid.grid_env import Env
 from collections import defaultdict
+import os.path
+from multiagent.grid.util import Util
 
 class QLearningPolicy:
     # Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
@@ -21,7 +23,10 @@ class QLearningPolicy:
 
         self.agent_count = len(self.env.get_agents())
 
-        QLearningPolicy.Q_TABLE = defaultdict(lambda: list(0 for i in range(self.action_count**self.agent_count)))
+        if os.path.isfile('q_table_bk_2.log'):
+            QLearningPolicy.Q_TABLE = Util.read_q_table('q_table_bk.log')
+        else:
+            QLearningPolicy.Q_TABLE = defaultdict(lambda: list(0 for i in range(self.action_count**self.agent_count)))
 
         self.state_space = 1
         for i in range(self.agent_count):
@@ -54,6 +59,10 @@ class QLearningPolicy:
         next_possible_q_values = QLearningPolicy.Q_TABLE[next_state]
         new_q = np.sum(reward_n) + QLearningPolicy.DISCOUNT_FACTOR * max(next_possible_q_values)
         QLearningPolicy.Q_TABLE[state][n_action_index] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
+
+        if len(QLearningPolicy.Q_TABLE) > 625:
+            i = 0
+            raise Exception('Something wrong with Q_table')
 
         # for i in range(self.agent_count):
         #     action = action_n[i]
@@ -158,12 +167,16 @@ class QLearningPolicy:
         for i in range(missing_char_count):
             n_action_bin = '0' + n_action_bin
 
+        actions = []
         for i in range(0, len(n_action_bin), 2):
             action_i = n_action_bin[i:(i+2)]
             action_i = int(action_i, 2)
+            actions.append(action_i)
 
-            agent_id = len(action_n)
-            agent = self.env.get_agent(agent_id)
+        actions = list(reversed(actions))
+        for i in range(len(actions)):
+            agent = self.env.get_agent(i)
+            action_i = actions[i]
             while self.env.turn_back(agent.get_last_action(), action_i):
                 action_i = np.random.choice(self.actions)
 
