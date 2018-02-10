@@ -21,7 +21,7 @@ class QLearningPolicy:
 
         self.agent_count = len(self.env.get_agents())
 
-        QLearningPolicy.Q_TABLE = defaultdict(lambda: list(0 for i in range(self.agent_count*self.action_count)))
+        QLearningPolicy.Q_TABLE = defaultdict(lambda: list(0 for i in range(self.action_count**self.agent_count)))
 
         self.state_space = 1
         for i in range(self.agent_count):
@@ -46,25 +46,48 @@ class QLearningPolicy:
 
         next_state = self._get_state_string(next_state_n)
 
-        agent_next_actions = QLearningPolicy.Q_TABLE[next_state]
+        # agent_next_actions = QLearningPolicy.Q_TABLE[next_state]
 
-        for i in range(self.agent_count):
-            action = action_n[i]
-            reward = reward_n[i]
+        n_action_index = self._get_n_actions_index(action_n)
+        current_q = QLearningPolicy.Q_TABLE[state][n_action_index]
 
-            agent_i_action_offset = i * self.action_count
-            agent_i_next_actions = agent_next_actions[agent_i_action_offset:(agent_i_action_offset+self.action_count)]
+        next_possible_q_values = QLearningPolicy.Q_TABLE[next_state]
+        new_q = np.sum(reward_n) + QLearningPolicy.DISCOUNT_FACTOR * max(next_possible_q_values)
+        QLearningPolicy.Q_TABLE[state][n_action_index] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
 
-            current_q = QLearningPolicy.Q_TABLE[state][agent_i_action_offset + action]
-
-            # using Bellman Optimality Equation to update q function
-
-            new_q = reward + QLearningPolicy.DISCOUNT_FACTOR * max(agent_i_next_actions)
-
-            QLearningPolicy.Q_TABLE[state][agent_i_action_offset + action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
-
-            t = 1
+        # for i in range(self.agent_count):
+        #     action = action_n[i]
+        #     reward = reward_n[i]
+        #
+        #     agent_i_action_offset = i * self.action_count
+        #     agent_i_next_actions = agent_next_actions[agent_i_action_offset:(agent_i_action_offset+self.action_count)]
+        #
+        #     current_q = QLearningPolicy.Q_TABLE[state][agent_i_action_offset + action]
+        #
+        #     # using Bellman Optimality Equation to update q function
+        #
+        #     new_q = reward + QLearningPolicy.DISCOUNT_FACTOR * max(agent_i_next_actions)
+        #
+        #     QLearningPolicy.Q_TABLE[state][agent_i_action_offset + action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
+        #
+        #     t = 1
             # self.Q_TABLE[state][action] += QLearningPolicy.LEARNING_RATE * (new_q - current_q)
+
+    def _get_n_actions_index(self, action_n):
+        binary_string = ''
+        for action in action_n:
+            action_bin = bin(action)
+            action_bin = action_bin.lstrip('0b')
+
+            if len(action_bin) == 0:
+                action_bin = '00'
+
+            if len(action_bin) % 2 == 1:
+                action_bin = '0' + action_bin
+
+            binary_string = action_bin + binary_string
+
+        return int(binary_string, 2)
 
     def _get_state_string(self, state_n):
         agent_count = len(self.env.get_agents())
@@ -75,13 +98,8 @@ class QLearningPolicy:
             if len(state_i) != 2:
                 raise Exception("Invalid sate")
 
-            #state = str(int(state_i[0])) + 'x' + str(int(state_i[1]))
-            pos = self.env.get_pos_from_row_and_col(state_i[0], state_i[1])
-            if len(state) > 0:
-                state = state + '-' + str(pos)
-
-            else:
-                state = state + str(pos)
+            pos = '[' + str(int(state_i[0])) + ', ' + str(int(state_i[1])) + ']'
+            state = state + pos
 
         return state
 
@@ -105,37 +123,71 @@ class QLearningPolicy:
 
         return action
 
-    # def get_action_n(self, state_n):
-    #     action_n = []
-    #     agent_count = len(self.env.get_agents())
-    #
-    #     state = self._get_state_string(state_n)
-    #
-    #     # # take action according to the q function table
-    #     # all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
-    #     # for i in range(self.agent_count):
-    #     #     action = self._arg_max(all_possible_agent_actions[i])
-    #     #     action_n.append(action)
-    #
-    #     state_space_len = len(QLearningPolicy.Q_TABLE)
-    #     # print("state space: ", state_space_len)
-    #
-    #     if np.random.rand() < QLearningPolicy.EPSILON and state_space_len < self.state_space:
-    #         # take random action
-    #         for i in range(agent_count):
-    #             action = np.random.choice(self.actions)
-    #             action_n.append(action)
-    #     else:
-    #         # take action according to the q function table
-    #         all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
-    #         for i in range(self.agent_count):
-    #             agent_action_offset = i * self.action_count
-    #             agent_action_end_offset = agent_action_offset + self.action_count
-    #             agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
-    #             action = self._get_indices_at_max_value(agent_i_actions)
-    #             action_n.append(action)
-    #
-    #     return action_n
+    def get_action_n(self, state_n):
+        action_n = []
+        agent_count = len(self.env.get_agents())
+
+        state = self._get_state_string(state_n)
+
+        # # take action according to the q function table
+        # all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
+        # for i in range(self.agent_count):
+        #     action = self._arg_max(all_possible_agent_actions[i])
+        #     action_n.append(action)
+
+        state_space_len = len(QLearningPolicy.Q_TABLE)
+        # print("state space: ", state_space_len)
+
+        # if np.random.rand() < QLearningPolicy.EPSILON:
+        #     # take random action
+        #     for i in range(agent_count):
+        #         action = np.random.choice(self.actions)
+        #         action_n.append(action)
+        # else:
+        # take action according to the q function table
+        all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
+        n_action_index = self._get_indices_at_max_value(all_possible_agent_actions)
+        n_action_bin = bin(n_action_index)
+        n_action_bin = n_action_bin.lstrip("0b")
+
+        missing_char_count = 2**self.agent_count - len(n_action_bin)
+        for i in range(missing_char_count):
+            n_action_bin = '0' + n_action_bin
+
+        for i in range(0, len(n_action_bin), 2):
+            action_i = n_action_bin[i:(i+2)]
+            action_i = int(action_i, 2)
+
+            agent_id = len(action_n)
+            agent = self.env.get_agent(agent_id)
+            while self.env.turn_back(agent.get_last_action(), action_i):
+                action_i = np.random.choice(self.actions)
+
+            action_n.append(action_i)
+
+        # for i in range(self.agent_count):
+        #     agent_action_offset = i * self.action_count
+        #     agent_action_end_offset = agent_action_offset + self.action_count
+        #     agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
+        #     action = self._get_indices_at_max_value(agent_i_actions)
+        #     action_n.append(action)
+
+        # if np.random.rand() < QLearningPolicy.EPSILON and state_space_len < self.state_space:
+        #     # take random action
+        #     for i in range(agent_count):
+        #         action = np.random.choice(self.actions)
+        #         action_n.append(action)
+        # else:
+        #     # take action according to the q function table
+        #     all_possible_agent_actions = QLearningPolicy.Q_TABLE[state]
+        #     for i in range(self.agent_count):
+        #         agent_action_offset = i * self.action_count
+        #         agent_action_end_offset = agent_action_offset + self.action_count
+        #         agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
+        #         action = self._get_indices_at_max_value(agent_i_actions)
+        #         action_n.append(action)
+
+        return action_n
 
     @staticmethod
     def _get_indices_at_max_value(state_action):
@@ -150,3 +202,11 @@ class QLearningPolicy:
                 max_index_list.append(index)
 
         return random.choice(max_index_list)
+
+    def get_qtable(self):
+
+        tb = []
+        for k, v in QLearningPolicy.Q_TABLE.items():
+            tb.append(str(k) + str(v) + "\n")
+
+        return tb

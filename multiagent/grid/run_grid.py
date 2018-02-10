@@ -79,10 +79,10 @@ if __name__ == "__main__":
     victim_count = len(victim_distribution)
     for i in range(victim_count):
         row_col = victim_distribution[i]
-        if len(row_col) != 2:
+        if len(row_col) != 3:
             raise Exception('Invalid victim position')
 
-        env.add_victim_at_row_col(row_col[0], row_col[1], 100)
+        env.add_victim_at_row_col(row_col[0], row_col[1], row_col[2])
 
     # for i in range(victim_count):
     #     env.add_victim()

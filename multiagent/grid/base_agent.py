@@ -9,6 +9,7 @@ class BaseAgent:
         self.env = env
         self.options = options
         self.rescued_victims = []
+        self.last_action = None
 
     def get_id(self):
         return self.agent_id
@@ -60,3 +61,9 @@ class BaseAgent:
         self.rescued_victims = []
 
         return True
+
+    def get_last_action(self):
+        return self.last_action
+
+    def set_last_action(self, action):
+        self.last_action = action

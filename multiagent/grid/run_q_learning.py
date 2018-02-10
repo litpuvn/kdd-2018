@@ -68,10 +68,10 @@ if __name__ == "__main__":
     victim_count = len(victim_distribution)
     for i in range(victim_count):
         row_col = victim_distribution[i]
-        if len(row_col) != 2:
+        if len(row_col) != 3:
             raise Exception('Invalid victim position')
 
-        env.add_victim_at_row_col(row_col[0], row_col[1], 100)
+        env.add_victim_at_row_col(row_col[0], row_col[1], row_col[2])
 
     env.pack_canvas()
 
@@ -101,21 +101,28 @@ if __name__ == "__main__":
             episode_time_step += 1
             next_state_n = copy.deepcopy(state_n)
 
-            action_n = []
+            # action_n = []
+            action_n = policy.get_action_n(state_n)
+
             for i in range(agent_count):
                 agent = env.get_agent(i)
+                # action = policy.get_agent_action(i, next_state_n)
+                action = action_n[i]
 
-                action = policy.get_agent_action(i, next_state_n)
-
-                # logger.info("state=" + action)
                 next_state, reward, done = env.agent_step(agent, action)
+                agent.set_last_action(action)
+
                 next_state_n[i] = copy.deepcopy(next_state)
                 reward_n[i] = reward
 
                 cumulative_reward += reward
                 score += reward
 
-                action_n.append(action)
+                # action_n.append(action)
+
+            logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(reward_n) + "; next_state=" + str(next_state_n))
+            for log_r in policy.get_qtable():
+                logger.info(log_r)
 
             policy.learn(state_n, action_n, reward_n, next_state_n)
             state_n = copy.deepcopy(next_state_n)

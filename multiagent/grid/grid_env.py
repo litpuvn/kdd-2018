@@ -21,6 +21,7 @@ GO_RIGHT = 3
 STEP_PENALTY = 0
 INVALID_STEP_PENALTY = -100
 
+
 class Victim(object):
     def __init__(self, victim_id, reward):
         self.id = victim_id
@@ -28,6 +29,9 @@ class Victim(object):
         self.resource_id = None
         self.rescued = False
         self.reward = reward
+
+        if self.reward < 0:
+            self.rescued = True
 
     def get_id(self):
         return self.id
@@ -135,7 +139,8 @@ class Env(tk.Tk):
 
     def reset_victims_state(self):
         for v in self.victims:
-            v.reset_rescued()
+            if v.get_reward() > 0:
+                v.reset_rescued()
 
     def reset_agents(self):
         states = {}
@@ -214,6 +219,9 @@ class Env(tk.Tk):
                 if not v.is_rescued():
                     reward = reward + v.get_reward()
                     v.set_rescued()
+                elif v.get_reward() < 0: # penalty for revisiting
+                    reward = reward + v.get_reward()
+
                     # done = True
 
         # action does not save anyone will be discounted STEP_PENALTY
@@ -563,3 +571,18 @@ class Env(tk.Tk):
         text = self.canvas.create_text(x, y, fill="black", text=contents,
                                        font=font, anchor=anchor)
         return self.texts.append(text)
+
+    def turn_back(self, last_action, action):
+        if last_action == GO_UP and action == GO_DOWN:
+            return True
+
+        if last_action == GO_DOWN and action == GO_UP:
+            return True
+
+        if last_action == GO_LEFT and action == GO_RIGHT:
+            return True
+
+        if last_action == GO_RIGHT and action == GO_LEFT:
+            return True
+
+        return False

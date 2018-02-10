@@ -62,15 +62,23 @@ class Distribution:
 
         # testing
         self.volunteers = [
-            [4, 0],
+            # [4, 0],
+            [0, 0],
             [0, 0]
         ]
 
         self.victims = [
-            [1, 2],
-            [1, 4],
-            [2, 2],
-            [4, 4]
+            [1, 2, 50],
+            [1, 4, 50],
+            [2, 2, 50],
+            [4, 4, 100]
+        ]
+
+        self.victims = [
+            [1, 2, -10],
+            [2, 1, -10],
+            [2, 2,  100],
+            [4, 2,  100]
         ]
 
     def get_distribution_of_vitims(self):
