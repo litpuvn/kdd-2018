@@ -119,7 +119,11 @@ class QLearningPolicy:
         agent_action_end_offset = agent_action_offset + self.action_count
         agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
 
+        # avoid turning back
         action = self._get_indices_at_max_value(agent_i_actions)
+        agent = self.env.get_agent(agent_index)
+        while self.env.turn_back(agent.get_last_action(), action):
+            action = np.random.choice(self.actions)
 
         return action
 
