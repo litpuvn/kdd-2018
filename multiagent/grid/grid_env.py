@@ -18,7 +18,7 @@ GO_DOWN = 1
 GO_LEFT = 2
 GO_RIGHT = 3
 
-STEP_PENALTY = -10
+STEP_PENALTY = 0
 INVALID_STEP_PENALTY = -100
 
 class Victim(object):
@@ -156,11 +156,10 @@ class Env(tk.Tk):
     def agent_step_collaborative(self, agent, action, state_n):
         i = 0
 
-    def agent_step(self, agent, action):
+    def _calculate_step(self, agent, action):
         agent_resource_id = agent.get_resource_id()
         state = self.canvas.coords(agent_resource_id)
         base_action = np.array([0, 0])
-        self.render()
 
         reward = 0
 
@@ -186,6 +185,12 @@ class Env(tk.Tk):
             else:
                 reward = INVALID_STEP_PENALTY
 
+        return base_action, reward
+
+    def agent_step(self, agent, action):
+        agent_resource_id = agent.get_resource_id()
+        base_action, reward = self._calculate_step(agent, action)
+        self.render()
         # move agent
         self.canvas.move(agent_resource_id, base_action[0], base_action[1])
         # move rectangle to top level of canvas
@@ -200,6 +205,7 @@ class Env(tk.Tk):
 
         pos = self.get_pos_from_row_and_col(row, col)
         agent.set_position(pos)
+        done = False
 
         for v in self.victims:
             if agent.get_position() == v.get_position():
@@ -208,13 +214,12 @@ class Env(tk.Tk):
                 if not v.is_rescued():
                     reward = reward + v.get_reward()
                     v.set_rescued()
-
-                # done = True
+                    # done = True
 
         # action does not save anyone will be discounted STEP_PENALTY
         reward += STEP_PENALTY*1
 
-        # done if all victims are rescued
+        # # done if all victims are rescued
         unrescued_victims = self.get_unrescued_victims()
         done = len(unrescued_victims) == 0
 
@@ -534,8 +539,8 @@ class Env(tk.Tk):
         for i in range(HEIGHT):
             for j in range(WIDTH):
                 for action in range(self.n_actions):
-                    state = self.get_pos_from_row_and_col(i, j)
-                    if str(state) in q_table.keys():
+                    state = str([i, j])
+                    if state in q_table.keys():
                         temp = q_table[str(state)][action]
                         self.text_value(i, j, round(temp, 2), action)
 
