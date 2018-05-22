@@ -64,7 +64,7 @@ class Victim(object):
         return self.reward
 
 class Env(tk.Tk):
-    def __init__(self, max_agent_count, max_victim_count):
+    def __init__(self, max_agent_count, max_victim_count, info):
         super(Env, self).__init__()
         self.action_space = ['u', 'd', 'l', 'r']
         self.max_a_count = max_agent_count
@@ -84,6 +84,28 @@ class Env(tk.Tk):
 
         self.victims = []
         self.victim_positions = {}
+
+        # ************* from other file ******************
+        # Environment info
+        self.env_info = info["env"]
+
+        self.Ny = self.env_info["Ny"]
+        self.Nx = self.env_info["Nx"]
+
+        # State and action space
+        self.action_dict = {"up": 0, "right": 1, "down": 2, "left": 3}
+        self.action_coords = np.array([[-1, 0], [0, 1], [1, 0], [0, -1]], dtype=np.int)
+        self.N_actions = len(self.action_coords)
+
+        self.state_dim = (self.Ny, self.Nx)  # tuple of integers
+        self.action_dim = (self.N_actions,)  # tuple of integers
+
+        self.state_size = np.prod(np.array(list(self.state_dim), dtype=np.int))  # integer
+        self.action_size = np.prod(np.array(list(self.action_dim), dtype=np.int))  # integer
+
+        # Check
+        if len(self.action_dict.keys()) != self.N_actions:
+            raise IOError("Error: Inconsistent action dimensions!")
 
     def _build_canvas(self):
         canvas = tk.Canvas(self, bg='white',

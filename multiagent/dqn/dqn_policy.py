@@ -7,7 +7,10 @@ from multiagent.grid.util import Util
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-
+from keras.models import Sequential
+from keras.layers import Dense, Reshape, Flatten
+from keras.layers.convolutional import Convolution2D
+from keras.models import load_model
 from collections import deque
 
 
@@ -20,7 +23,7 @@ class DQNPolicy:
     EPSILON = 0.1
     Q_TABLE = None
 
-    def __init__(self, env):
+    def __init__(self, env, info):
 
         self.env = env
         # actions = [0, 1, 2, 3]
@@ -39,6 +42,42 @@ class DQNPolicy:
             self.state_space *= (25-i)
 
         self.memory = deque(maxlen=100000)
+
+        # Training Parameters
+        self.brain_info = info["brain"]
+        self.env_info = info["env"]
+
+        # Learning parameters
+        self.gamma = self.brain_info["discount"]
+        self.learning_rate = self.brain_info["learning_rate"]
+
+        # Model network function
+        self.model = self._build_model(env)
+
+    def _build_model(self, env):
+
+        input_dim_2D = env.state_dim
+        input_dim_3D = (1,) + env.state_dim
+        output_size = env.action_size
+
+        # Build model architecture (outputs [M(a_1), M(a_2), ..., M(a_n)])
+        model = Sequential()
+        model.add(Reshape(input_dim_3D, input_shape=input_dim_2D))  # Reshape 2D to 3D slice
+        model.add(Convolution2D(64, (2, 2), strides=(1, 1), padding="same", activation="relu",
+                                kernel_initializer="he_uniform"))
+        model.add(Flatten())
+        model.add(Dense(64, activation="relu", kernel_initializer="he_uniform"))
+        model.add(Dense(32, activation="relu", kernel_initializer="he_uniform"))
+        model.add(Dense(output_size, activation="linear"))
+
+        # Select optimizer and loss function
+        model.compile(loss="mean_squared_error", optimizer="Adam")
+
+        # Print model network architecture summary
+        model.summary()
+
+        return model
+
 
     def build_model(self):
         alpha = 0.01

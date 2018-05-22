@@ -17,13 +17,24 @@ import pylab
 from multiagent.grid.distribution import Distribution
 import logging
 
-TOTAL_EPISODES = 102500
+TOTAL_EPISODES = 500
 
 if __name__ == "__main__":
     max_agent_count = 50
     max_victim_count = 50
 
-    env = Env(max_agent_count, max_victim_count)
+    info = {
+        "env": {"Ny": 20,
+                "Nx": 20},
+        "agent": {"policy_mode": "epsgreedy",  # "epsgreedy", "softmax"
+                  "eps": 1.0,
+                  "eps_decay": 2.0 * np.log(10.0) / TOTAL_EPISODES},
+        "brain": {"discount": 0.99,
+                  "learning_rate": 0.9},
+        "memory": {}
+    }
+
+    env = Env(max_agent_count, max_victim_count, info)
 
     agent_count = 1
     victim_count = 1
@@ -52,7 +63,7 @@ if __name__ == "__main__":
 
     env.pack_canvas()
 
-    policy = DQNPolicy(env)
+    policy = DQNPolicy(env, info)
     logger = Env.setup_custom_logger("app", logging.INFO)
     q_table_logger = Env.setup_custom_logger("qtable", logging.INFO, 'q_table.log')
     global_step = 0
