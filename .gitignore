@@ -4,3 +4,7 @@ multiagent/scenarios/__pycache__/
 multiagent/grid/__pycache__/
 multiagent/grid/save_graph/
 multiagent/grid/log.txt
+multiagent/dqn/log.txt
+multiagent/dqn/q_table.log
+multiagent/dqn/save_graph/
+multiagent/dqn/__pycache__/
