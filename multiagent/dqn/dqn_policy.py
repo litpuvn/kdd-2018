@@ -4,6 +4,12 @@ from multiagent.grid.grid_env import Env
 from collections import defaultdict
 import os.path
 from multiagent.grid.util import Util
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam
+
+from collections import deque
+
 
 class DQNPolicy:
     # Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
@@ -32,17 +38,22 @@ class DQNPolicy:
         for i in range(self.agent_count):
             self.state_space *= (25-i)
 
-    # def build_q_table(self):
-    #     for pos in range(25):
-    #         for act in range(self.action_count):
-    #             new_pos = 1
-    #             reward = 1
-    #             for p2 in range(25):
-    #                 for act2 in range(self.action_count):
-    #                     new_pos_2 = 1
-    #                     reward_2 = 1
+        self.memory = deque(maxlen=100000)
 
+    def build_model(self):
+        alpha = 0.01
+        alpha_decay = 0.01
+        self.alpha = alpha
+        self.alpha_decay = alpha_decay
+        # Init model
+        self.model = Sequential()
+        self.model.add(Dense(24, input_dim=4, activation='tanh'))
+        self.model.add(Dense(48, activation='tanh'))
+        self.model.add(Dense(2, activation='linear'))
+        self.model.compile(loss='mse', optimizer=Adam(lr=self.alpha, decay=self.alpha_decay))
 
+    def remember(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
 
     # update q function with sample <s, a, r, s'>
     def learn(self, state_n, action_n, reward_n, next_state_n):

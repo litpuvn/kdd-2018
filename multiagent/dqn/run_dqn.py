@@ -105,7 +105,6 @@ if __name__ == "__main__":
             # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(
             #     reward_n) + "; next_state=" + str(next_state_n))
 
-
             state_n = copy.deepcopy(next_state_n)
             env.print_value_all(DQNPolicy.Q_TABLE)
 
