@@ -67,6 +67,9 @@ class Distribution:
             [0, 0]
         ]
 
+        self.volunteers = [
+            [0, 0]
+        ]
         self.victims = [
             [1, 2, 50],
             [1, 4, 50],
@@ -81,6 +84,11 @@ class Distribution:
             [4, 2,  50]
         ]
 
+        self.victims = [
+            [1, 2, -100],
+            [2, 1, -100],
+            [4, 2,  50]
+        ]
     def get_distribution_of_vitims(self):
         return self.victims
 
