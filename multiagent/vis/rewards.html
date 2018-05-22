@@ -1,0 +1,190 @@
+<html>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+
+<head>
+<style>
+@import 'https://code.highcharts.com/css/highcharts.css';
+
+#container {
+	height: 400px;
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.highcharts-axis-labels {
+    font-size: 1.5em;
+	font-family: 'times new roman', monospace;	
+}
+.highcharts-axis{
+	font-size: 2.0em;
+	font-family: 'times new roman', monospace;
+	stroke: #000000;
+}
+
+.highcharts-axis .highcharts-axis-line {
+	stroke: #000000;
+	fill: #000000;
+}
+
+
+.highcharts-grid-line {
+    fill: none;
+    stroke: #ffffff;
+}
+
+.highcharts-series-0 .highcharts-point,
+.highcharts-series-0 .highcharts-graph{
+	fill: none;
+    stroke: #2ca02c;
+}
+.highcharts-series-1 .highcharts-point,
+.highcharts-series-1 .highcharts-graph {
+	fill: none;
+	stroke: #1f77b4;
+}
+.highcharts-series-2 .highcharts-point,
+.highcharts-series-2 .highcharts-graph {
+	fill: none;
+	stroke: #ff7f0e;
+}
+
+.highcharts-yaxis .highcharts-axis-line {
+    stroke-width: 1;
+}
+
+.highcharts-yaxis .highcharts-tick {
+    stroke-width: 1; 
+}
+
+.highcharts-credits {
+	display: none;
+}
+</style>
+    
+</head>
+    
+
+
+<div id="container"></div>
+
+    <body>
+    
+        <script>
+        function generate_greedy_data(reward, number_of_points) {
+			var data = [];
+			for(var i=0; i< number_of_points; i++) {
+				data.push(reward);
+			}
+			
+			return data;
+		}
+        
+		function generate_q_data(){
+			var data = [];
+			
+			return data;
+		}
+		
+		function generate_random_data(){
+			var data = [];
+			
+			return data;
+		}
+		
+        var geedy_categories = generate_greedy_data(-100, 66);
+		var q_categories = generate_q_data();
+		var random_categories = generate_random_data();
+Highcharts.chart('container', {
+    
+	title: {
+        text: ''
+    },
+	xAxis: {
+        title: {
+            text: 'Episodes',
+			style:{
+			color: '#000000',
+			fontSize:'22px'
+			}
+        },
+		categories: ['0', '50', '100', '150', '200', '250', '300', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '950', '1000', '1050', '1100', '1150', '1200', '1250', '1300', '1350', '1400', '1450', '1500', '1550', '1600', '1650', '1700', '1750', '1800', '1850', '1900', '1950', '2000', '2050', '2100', '2150', '2200', '2250', '2300', '2350', '2400', '2450', '2500', '2550', '2600', '2650', '2700', '2750', '2800', '2850', '2900', '2950', '3000', '3050', '3100', '3150', '3200', '3250', '3300'],
+		labels: {
+			style: {
+				fontSize: '18px',
+				color: 'black'
+			}
+		}		
+    },
+    yAxis: {
+		lineColor: 'black',
+        lineWidth: 2,
+		tickLength: 10,
+        tickWidth: 1,
+        title: {
+            text: 'Rewards',
+			style:{
+			color: '#000000',
+			fontSize:'22px'
+			}
+        },
+		labels: {
+            style: {
+				fontSize: '18px',
+				color: 'black'
+            }
+        }
+    },
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+		
+    },
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+            pointStart: 0,
+			marker: {
+                enabled: false
+            }
+        }
+	 
+    },
+    series: [{ 
+        name: 'R.L. Policy',
+        data: [-302.6, -229.2, -239.2, -115.0, -68.2, -57.4, -13.8, -4.4, 31.6, 50.4, 36.6, 54.6, 56.0, 65.8, 57.8, 51.4, 54.6, 45.8, 64.4, 45.2, 43.0, 41.6, 47.4, 60.4, 53.6, 60.2, 72.4, 54.8, 66.0, 61.8, 62.0, 70.4, 66.8, 61.6, 24.6, 15.8, 18.0, 20.0, 38.4, 37.0, 40.4, 39.4, 42.6, 55.0, 46.0, 58.4, 56.0, 66.4, 66.8, 67.4, 70.2, 66.4, 68.4, 66.2, 65.6, 67.0, 68.0, 69.4, 70.8, 69.0, 66.6, 67.6, 67.6, 68.6, 69.2, 71.6]
+    },{ 
+        name: 'Greedy Policy',
+        data: geedy_categories
+    },{ 
+        name: 'Random Policy',
+        data: [-834.4067796610169, -858.4745762711865, -825.9322033898305, -975.9322033898305, -896.271186440678, -767.7966101694915, -781.0169491525423, -829.6610169491526, -741.0169491525423, -780.0, -897.9661016949152, -972.3728813559322, -1023.3898305084746, -837.1186440677966, -874.4067796610169, -889.4915254237288, -893.728813559322, -955.0847457627119, -1004.0677966101695, -854.9152542372881, -809.6610169491526, -744.4067796610169, -780.0, -814.0677966101695, -811.8644067796611, -693.3898305084746, -884.4067796610169, -908.3050847457627, -791.5254237288135, -790.8474576271186, -845.0847457627119, -931.3559322033898, -778.8135593220339, -930.5084745762712, -842.0338983050848, -947.457627118644, -776.9491525423729, -712.3728813559322, -939.1525423728814, -738.9830508474577, -846.4406779661017, -1042.7118644067796, -802.542372881356, -680.0, -738.4745762711865, -818.6440677966102, -858.4745762711865, -957.7966101694915, -744.5762711864406, -961.8644067796611, -956.271186440678, -915.5932203389831, -860.1694915254237, -942.8813559322034, -822.3728813559322, -991.0169491525423, -784.4067796610169, -805.4237288135594, -953.0508474576271, -922.3728813559322, -786.271186440678, -938.1355932203389, -911.6949152542373, -1026.949152542373, -905.9322033898305, -1080.5084745762713]
+    }	
+	],
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+});
+        </script>
+        
+        
+    </body>
+    
+    
+
+</html>

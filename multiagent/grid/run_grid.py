@@ -16,6 +16,9 @@ from multiagent.grid.greedy_agent import GreedyAgent
 from multiagent.grid.deep_reinforce_agent import DeepReinforceAgent
 import pylab
 from multiagent.grid.distribution import Distribution
+import logging
+
+
 # if __name__ == '__main__':
 #
 #
@@ -45,7 +48,9 @@ from multiagent.grid.distribution import Distribution
 #         #    print(agent.name + " reward: %0.3f" % env._get_reward(agent))
 
 
-TOTAL_EPISODES = 500
+TOTAL_EPISODES = 12500
+POLICY_RANDOM = 'random'
+POLICY_GREEDY = 'greedy'
 
 if __name__ == "__main__":
     max_agent_count = 50
@@ -53,8 +58,12 @@ if __name__ == "__main__":
 
     env = Env(max_agent_count, max_victim_count)
 
+    # random, greedy
+    TEST_POLICY = POLICY_RANDOM
+
     agent_count = 2
     victim_count = 2
+    logger = Env.setup_custom_logger("app", logging.INFO, TEST_POLICY + "_policy_log.txt")
 
     distribution = Distribution()
 
@@ -62,18 +71,19 @@ if __name__ == "__main__":
     agent_count = len(volunteer_distribution)
 
     for i in range(agent_count):
-        agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env, options={'distributed': True})
+
+        if TEST_POLICY == POLICY_RANDOM:
+            agent = RandomActionAgent(actions=list(range(env.n_actions)), agent_id=i, env=env, options={'distributed': False})
+        elif TEST_POLICY == POLICY_GREEDY:
+            agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=i, env=env, options={'distributed': False})
+        else:
+            raise Exception('Invalid policy to run')
+
         row_col = volunteer_distribution[i]
         if len(row_col) != 2:
             raise Exception('Invalid volunteer position')
 
         env.add_agent_at_row_col(agent, row_col[0], row_col[1])
-
-    # agent2 = GreedyAgent(actions=list(range(env.n_actions)), agent_id=0, env=env)
-    # env.add_agent_at_pos(agent2, 22)
-    #
-    # agent = GreedyAgent(actions=list(range(env.n_actions)), agent_id=1, env=env)
-    # env.add_agent_at_pos(agent, 22)
 
     victim_distribution = distribution.get_distribution_of_vitims()
     victim_count = len(victim_distribution)
@@ -83,13 +93,6 @@ if __name__ == "__main__":
             raise Exception('Invalid victim position')
 
         env.add_victim_at_row_col(row_col[0], row_col[1], row_col[2])
-
-    # for i in range(victim_count):
-    #     env.add_victim()
-    # env.add_victim_at_pos(5, 100)
-    # env.add_victim_at_pos(4, 100)
-    # env.add_victim_at_pos(12, 100)
-    # env.add_victim_at_pos(24, 100)
 
     env.pack_canvas()
 
@@ -142,14 +145,15 @@ if __name__ == "__main__":
                 scores.append(score)
                 episode_time_steps.append(episode_time_step)
                 episodes.append(episode)
-                print("episode:", episode, "  score:", score, "  episode time_step:", episode_time_step, " global time:", global_step)
+                logger.info("episode:" + str(episode) + "  score:" + str(score) + "  episode time_step:" + str(episode_time_step) + " global time:" + str(global_step))
+
                 break
 
         if episode % 10 == 0:
             pylab.figure(1)
             pylab.plot(episodes, scores, 'b')
-            pylab.savefig("./save_graph/greedy_policy_score.png")
+            pylab.savefig("./save_graph/" + TEST_POLICY + "_policy_score.png")
 
             pylab.figure(2)
             pylab.plot(episodes, episode_time_steps, 'b')
-            pylab.savefig("./save_graph/greedy_policy_time_step.png")
+            pylab.savefig("./save_graph/" + TEST_POLICY + "_policy_time_step.png")
