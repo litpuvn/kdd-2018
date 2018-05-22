@@ -8,8 +8,8 @@ import sys
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
 UNIT = 80  # pixels
-HEIGHT = 5  # grid height
-WIDTH = 5  # grid width
+# HEIGHT = 5  # grid height
+# WIDTH = 5  # grid width
 
 IMAGE_ICON_SIZE = 25
 
@@ -66,13 +66,24 @@ class Victim(object):
 class Env(tk.Tk):
     def __init__(self, max_agent_count, max_victim_count, info):
         super(Env, self).__init__()
+
+        # Environment info
+        self.env_info = info["env"]
+
+        self.Ny = self.env_info["Ny"]
+        self.Nx = self.env_info["Nx"]
+
+        self.WIDTH = self.Nx
+        self.HEIGHT = self.Ny
+        # ********* ***********
+
         self.action_space = ['u', 'd', 'l', 'r']
         self.max_a_count = max_agent_count
         self.max_v_count = max_victim_count
         self.n_actions = len(self.action_space)
 
         self.title('Q Learning')
-        self.geometry('{0}x{1}'.format(HEIGHT * UNIT, HEIGHT * UNIT))
+        self.geometry('{0}x{1}'.format(self.WIDTH * UNIT, self.HEIGHT * UNIT))
         self.shapes = self.load_images()
 
         self.canvas = self._build_canvas()
@@ -86,11 +97,7 @@ class Env(tk.Tk):
         self.victim_positions = {}
 
         # ************* from other file ******************
-        # Environment info
-        self.env_info = info["env"]
 
-        self.Ny = self.env_info["Ny"]
-        self.Nx = self.env_info["Nx"]
 
         # State and action space
         self.action_dict = {"up": 0, "right": 1, "down": 2, "left": 3}
@@ -109,14 +116,14 @@ class Env(tk.Tk):
 
     def _build_canvas(self):
         canvas = tk.Canvas(self, bg='white',
-                           height=HEIGHT * UNIT,
-                           width=WIDTH * UNIT)
+                           height=self.HEIGHT * UNIT,
+                           width=self.WIDTH * UNIT)
         # create grids
-        for c in range(0, WIDTH * UNIT, UNIT):  # 0~400 by 80
-            x0, y0, x1, y1 = c, 0, c, HEIGHT * UNIT
+        for c in range(0, self.WIDTH * UNIT, UNIT):  # 0~400 by 80
+            x0, y0, x1, y1 = c, 0, c, self.HEIGHT * UNIT
             canvas.create_line(x0, y0, x1, y1)
-        for r in range(0, HEIGHT * UNIT, UNIT):  # 0~400 by 80
-            x0, y0, x1, y1 = 0, r, HEIGHT * UNIT, r
+        for r in range(0, self.HEIGHT * UNIT, UNIT):  # 0~400 by 80
+            x0, y0, x1, y1 = 0, r, self.HEIGHT * UNIT, r
             canvas.create_line(x0, y0, x1, y1)
 
         return canvas
@@ -196,7 +203,7 @@ class Env(tk.Tk):
             else:
                 reward = INVALID_STEP_PENALTY
         elif action == GO_DOWN:  # down
-            if state[1] < (HEIGHT - 1) * UNIT:
+            if state[1] < (self.HEIGHT - 1) * UNIT:
                 base_action[1] += UNIT
             else:
                 reward = INVALID_STEP_PENALTY
@@ -207,7 +214,7 @@ class Env(tk.Tk):
             else:
                 reward = INVALID_STEP_PENALTY
         elif action == GO_RIGHT:  # right
-            if state[0] < (WIDTH - 1) * UNIT:
+            if state[0] < (self.WIDTH - 1) * UNIT:
                 base_action[0] += UNIT
             else:
                 reward = INVALID_STEP_PENALTY
@@ -374,7 +381,7 @@ class Env(tk.Tk):
 
     def _generate_new_position(self, existing_positions):
         while True:
-            pos = np.random.randint(0, WIDTH * HEIGHT)
+            pos = np.random.randint(0, self.WIDTH * self.HEIGHT)
             if pos not in existing_positions:
                 return pos
 
@@ -428,10 +435,10 @@ class Env(tk.Tk):
         return v
 
     def get_row(self, pos):
-        return pos // WIDTH
+        return pos // self.WIDTH
 
     def get_col(self, pos):
-        return pos % WIDTH
+        return pos % self.WIDTH
 
     def get_row_center_pixel(self, pos):
         row = self.get_row(pos)
@@ -453,13 +460,13 @@ class Env(tk.Tk):
         return int((col_pixel - UNIT / 2) / UNIT)
 
     def get_pos_from_row_and_col(self, row, col):
-        return row * WIDTH + col
+        return row * self.WIDTH + col
 
     def get_pos_from_coords(self, coord_x, coord_y):
         row = self.get_row_from_coord(coord_y)
         col = self.get_col_from_coord(coord_x)
 
-        return row * WIDTH + col
+        return row * self.WIDTH + col
 
     def get_unrescued_victims(self):
         unrescued_victims = []
@@ -566,8 +573,8 @@ class Env(tk.Tk):
         for i in self.texts:
             self.canvas.delete(i)
         self.texts.clear()
-        for i in range(HEIGHT):
-            for j in range(WIDTH):
+        for i in range(self.HEIGHT):
+            for j in range(self.WIDTH):
                 for action in range(self.n_actions):
                     state = str([i, j])
                     if state in q_table.keys():
