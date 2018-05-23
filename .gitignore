@@ -15,3 +15,4 @@ multiagent/qlearning/log.txt
 multiagent/qlearning/save_graph/
 multiagent/qlearning/q_table.log
 multiagent/qlearning/__pycache__/
+multiagent/qlearning/test/__pycache__/
