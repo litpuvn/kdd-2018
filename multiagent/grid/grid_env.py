@@ -147,14 +147,14 @@ class Env(tk.Tk):
         time.sleep(0.5)
 
         # set random position for agents
-        states = self.reset_agents()
-
+        self.reset_agents()
+        #
         self.reset_victims_state()
 
         self.render()
 
         # get current state from agent positions
-        return states
+        return self.starting_state()
 
     # def reset_victims(self):
     #     for v in self.victims:
@@ -171,8 +171,25 @@ class Env(tk.Tk):
             if v.get_reward() > 0:
                 v.reset_rescued()
 
+    # ===================
+    # Starting and terminal state
+    # ===================
+    def starting_state(self):
+        # 2D zero grid with a 1 at top-left corner
+        state = np.zeros((self.Ny, self.Nx), dtype=np.int)
+        for v in self.victims:
+            v_row = self.get_row(v.get_position())
+            v_col = self.get_col(v.get_position())
+
+            if v.get_reward() > 0: # true victims
+                state[v_row, v_col] = 1
+            else: # obstacles
+                state[v_row, v_col] = -1
+
+        return state
+
     def reset_agents(self):
-        states = {}
+        # states = {}
         for a in self.agents:
             initial_pos = a.get_initial_position()
             a.set_position(initial_pos)
@@ -183,9 +200,9 @@ class Env(tk.Tk):
 
             self.canvas.coords(a.get_resource_id(), [x_coord, y_coord])
 
-            states[a.get_id()] = [self.get_row(initial_pos), self.get_col(initial_pos)]
+            # states[a.get_id()] = [self.get_row(initial_pos), self.get_col(initial_pos)]
 
-        return states
+        # return states
 
     def agent_step_collaborative(self, agent, action, state_n):
         i = 0
