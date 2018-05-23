@@ -1,0 +1,1 @@
+2018-05-23 17:38:55 INFO     episode:0  score:-420  episode time_step:85 global time:85
