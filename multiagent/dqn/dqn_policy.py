@@ -110,9 +110,9 @@ class DQNPolicy:
         new_q = np.sum(reward_n) + DQNPolicy.DISCOUNT_FACTOR * max(next_possible_q_values)
         DQNPolicy.Q_TABLE[state][n_action_index] += DQNPolicy.LEARNING_RATE * (new_q - current_q)
 
-        if len(DQNPolicy.Q_TABLE) > 625:
-            i = 0
-            raise Exception('Something wrong with Q_table')
+        # if len(DQNPolicy.Q_TABLE) > 625:
+        #     i = 0
+        #     raise Exception('Something wrong with Q_table')
 
         # for i in range(self.agent_count):
         #     action = action_n[i]
