@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     env.pack_canvas()
 
-    memory = Memory(info)
+    # memory = Memory(info)
     policy = Policy(env, info)
     logger = Env.setup_custom_logger("app", logging.INFO)
     q_table_logger = Env.setup_custom_logger("qtable", logging.INFO, 'q_table.log')
