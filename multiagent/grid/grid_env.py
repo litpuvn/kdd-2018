@@ -147,14 +147,14 @@ class Env(tk.Tk):
         time.sleep(0.5)
 
         # set random position for agents
-        self.reset_agents()
+        state = self.reset_agents()
         #
         self.reset_victims_state()
 
         self.render()
 
         # get current state from agent positions
-        return self.starting_state()
+        return state
 
     # def reset_victims(self):
     #     for v in self.victims:
@@ -189,7 +189,7 @@ class Env(tk.Tk):
         return state
 
     def reset_agents(self):
-        # states = {}
+        states = {}
         for a in self.agents:
             initial_pos = a.get_initial_position()
             a.set_position(initial_pos)
@@ -200,9 +200,9 @@ class Env(tk.Tk):
 
             self.canvas.coords(a.get_resource_id(), [x_coord, y_coord])
 
-            # states[a.get_id()] = [self.get_row(initial_pos), self.get_col(initial_pos)]
+            states[a.get_id()] = [self.get_row(initial_pos), self.get_col(initial_pos)]
 
-        # return states
+        return states
 
     def agent_step_collaborative(self, agent, action, state_n):
         i = 0

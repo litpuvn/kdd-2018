@@ -8,3 +8,6 @@ multiagent/dqn/log.txt
 multiagent/dqn/q_table.log
 multiagent/dqn/save_graph/
 multiagent/dqn/__pycache__/
+multiagent/grid/q_table
+multiagent/grid/q_table.log
+multiagent/grid/random_policy_log.txt

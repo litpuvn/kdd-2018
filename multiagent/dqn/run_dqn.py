@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
     env = Env(max_agent_count, max_victim_count, info)
 
-    agent_count = 1
-    victim_count = 1
+    agent_count = 2
+    victim_count = 2
 
     distribution = Distribution()
 
@@ -113,9 +113,9 @@ if __name__ == "__main__":
 
                 # action_n.append(action)
 
-            # policy.learn(state_n, action_n, reward_n, next_state_n)
+            policy.learn(state_n, action_n, reward_n, next_state_n)
 
-            memory.append_to_memory(state_n, next_state_n, action_n, model_output, prob, reward_n)
+            #memory.append_to_memory(state_n, next_state_n, action_n, model_output, prob, reward_n)
 
             # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(
             #     reward_n) + "; next_state=" + str(next_state_n))
@@ -135,7 +135,7 @@ if __name__ == "__main__":
                 break
 
         # Update model when episode finishes
-        policy.update(memory, env)
+        # policy.update(memory, env)
         if episode % 10 == 0:
             pylab.figure(1)
             pylab.plot(episodes, scores, 'b')
@@ -149,4 +149,4 @@ if __name__ == "__main__":
                 q_table_logger.info(log_r)
 
         # Clear memory for next episode
-        memory.clear_memory()
+        # memory.clear_memory()
