@@ -9,7 +9,7 @@ import multiagent.scenarios as scenarios
 from multiagent.speaker_listener import SpeakerListenerScenario
 import copy
 import numpy as np
-from multiagent.grid.grid_env import Env
+from multiagent.dqn.grid_env import Env
 from multiagent.dqn.dqn_agent import DQNAgent
 from multiagent.dqn.dqn_policy import DQNPolicy
 from multiagent.dqn.memory import Memory
