@@ -11,3 +11,7 @@ multiagent/dqn/__pycache__/
 multiagent/grid/q_table
 multiagent/grid/q_table.log
 multiagent/grid/random_policy_log.txt
+multiagent/qlearning/log.txt
+multiagent/qlearning/save_graph/
+multiagent/qlearning/q_table.log
+multiagent/qlearning/__pycache__/
