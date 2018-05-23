@@ -12,6 +12,7 @@ import numpy as np
 from multiagent.grid.grid_env import Env
 from multiagent.dqn.dqn_agent import DQNAgent
 from multiagent.dqn.dqn_policy import DQNPolicy
+from multiagent.dqn.memory import Memory
 
 import pylab
 from multiagent.grid.distribution import Distribution
@@ -63,6 +64,7 @@ if __name__ == "__main__":
 
     env.pack_canvas()
 
+    memory = Memory(info)
     policy = DQNPolicy(env, info)
     logger = Env.setup_custom_logger("app", logging.INFO)
     q_table_logger = Env.setup_custom_logger("qtable", logging.INFO, 'q_table.log')
@@ -97,7 +99,7 @@ if __name__ == "__main__":
                 agent = env.get_agent(i)
                 action = action_n[i]
                 # action = policy.get_agent_action(i, next_state_n)
-                state =  state_n[i]
+                state = state_n[i]
                 next_state, reward, done = env.agent_step(agent, action)
 
                 if state[0] != next_state[0] or state[1] != next_state[1]:
@@ -111,7 +113,9 @@ if __name__ == "__main__":
 
                 # action_n.append(action)
 
-            policy.learn(state_n, action_n, reward_n, next_state_n)
+            # policy.learn(state_n, action_n, reward_n, next_state_n)
+
+            memory.append_to_memory(state_n, next_state_n, action_n, model_output, prob, reward_n)
 
             # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(
             #     reward_n) + "; next_state=" + str(next_state_n))
@@ -129,6 +133,9 @@ if __name__ == "__main__":
 
                 logger.info("episode:" + str(episode) + "  score:" + str(score) + "  episode time_step:" + str(episode_time_step) + " global time:" + str(global_step))
                 break
+
+        # Update model when episode finishes
+        policy.update(memory, env)
         if episode % 10 == 0:
             pylab.figure(1)
             pylab.plot(episodes, scores, 'b')
@@ -140,3 +147,6 @@ if __name__ == "__main__":
 
             for log_r in policy.get_qtable():
                 q_table_logger.info(log_r)
+
+        # Clear memory for next episode
+        memory.clear_memory()

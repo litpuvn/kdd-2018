@@ -132,6 +132,57 @@ class DQNPolicy:
         #     t = 1
             # self.Q_TABLE[state][action] += DQNPolicy.LEARNING_RATE * (new_q - current_q)
 
+    def update(self, memory, env):
+
+        states = memory.state_memory
+        states_next = memory.state_next_memory
+        actions = memory.action_memory
+        rewards = memory.reward_memory
+        model_outputs = memory.MN_output_memory
+
+        gamma = self.gamma
+        learning_rate = self.learning_rate
+
+        # Compute loss scaled by discounted rewards
+        for i, (state, state_next, action, reward) in enumerate(zip(states, states_next, actions, rewards)):
+
+            # Compute Q_max_next
+            if env.is_terminal_state(state_next):
+                Q_max_next = 0.0
+            else:
+                state_next_reshaped = state_next.reshape(list((1,) + env.state_dim))
+                Q_state_next = self.model.predict(state_next_reshaped, batch_size=1).flatten()
+                Q_max_next = np.max(Q_state_next)
+
+            # Current Q estimates
+            Q = model_outputs[i]
+
+            # Target Q
+            Q_target = Q.copy()
+            Q_target[action] = reward + gamma * Q_max_next
+
+            # Loss function
+            loss = Q_target - Q
+
+            # Construct training data (states)
+            X = state.reshape((1,) + env.state_dim)
+
+            # Construct training labels (loss)
+            dmodel_output = learning_rate * loss
+            Y = (model_outputs[i] + dmodel_output).reshape((1,) + env.action_dim)
+
+            # Make checks
+            def equal_tuples(t1, t2):
+                return sorted(t1) == sorted(t2)
+
+            if not equal_tuples(X.shape, (1,) + env.state_dim):
+                raise IOError("Error: X.shape = {}, not {}".format(X.shape, (1,) + env.state_dim))
+            if not equal_tuples(Y.shape, (1,) + env.action_dim):
+                raise IOError("Error: Y.shape = {}, not {}".format(X.shape, (1,) + env.action_dim))
+
+            # Train Q network
+            self.model.train_on_batch(X, Y)
+
     def _get_n_actions_index(self, action_n):
         binary_string = ''
         for action in action_n:
