@@ -25,8 +25,8 @@ if __name__ == "__main__":
     max_victim_count = 50
 
     info = {
-        "env": {"Ny": 8,
-                "Nx": 8},
+        "env": {"Ny": 5,
+                "Nx": 5},
         "agent": {"policy_mode": "epsgreedy",  # "epsgreedy", "softmax"
                   "eps": 1.0,
                   "eps_decay": 2.0 * np.log(10.0) / TOTAL_EPISODES},
