@@ -59,40 +59,44 @@ class DQNPolicy:
     # update q function with sample <s, a, r, s'>
     def learn(self, state_n, action_n, reward_n, next_state_n):
 
-        state = self._get_state_string(state_n)
+        def get_agent_q_val(row, col, agent_id, action):
 
-        next_state = self._get_state_string(next_state_n)
+            return DQNPolicy.Q_TABLE[(row, col, agent_id, action)]
 
-        # agent_next_actions = DQNPolicy.Q_TABLE[next_state]
+        def get_agent_max_q_val(row, col, agent_id):
+            Qmax_next = np.max(DQNPolicy.Q_TABLE[(row, col, agent_id)])
 
-        n_action_index = self._get_n_actions_index(action_n)
-        current_q = DQNPolicy.Q_TABLE[state][n_action_index]
+            return Qmax_next
 
-        next_possible_q_values = DQNPolicy.Q_TABLE[next_state]
-        new_q = np.sum(reward_n) + DQNPolicy.DISCOUNT_FACTOR * max(next_possible_q_values)
-        DQNPolicy.Q_TABLE[state][n_action_index] += DQNPolicy.LEARNING_RATE * (new_q - current_q)
+        def update_q_val(row, col, agent_id, action, dq):
+            DQNPolicy.Q_TABLE[(row, col, agent_id, action)] += dq
 
-        # if len(DQNPolicy.Q_TABLE) > 625:
-        #     i = 0
-        #     raise Exception('Something wrong with Q_table')
+        total_current_q = 0
+        list_current_q = []
+        for i, state in enumerate(state_n):
+            cur_q = get_agent_q_val(state[0], state[1], i, action_n[i])
+            total_current_q = total_current_q + cur_q
+            list_current_q.append(cur_q)
 
-        # for i in range(self.agent_count):
-        #     action = action_n[i]
-        #     reward = reward_n[i]
+        total_next_q = 0
+        for i, next_state in enumerate(next_state_n):
+            next_q = get_agent_max_q_val(next_state[0], next_state[1], i)
+            total_next_q = total_next_q + next_q
+            new_q = reward_n[i] + DQNPolicy.DISCOUNT_FACTOR * next_q
+            dq = DQNPolicy.LEARNING_RATE * (new_q - list_current_q[i])
+            state = state_n[i]
+            action = action_n[i]
+            update_q_val(state[0], state[1], i, action, dq)
+
+
+        # #### original ###
+        # new_q = np.sum(reward_n) + DQNPolicy.DISCOUNT_FACTOR * total_next_q
+        # dQ = DQNPolicy.LEARNING_RATE * (new_q - total_current_q)
         #
-        #     agent_i_action_offset = i * self.action_count
-        #     agent_i_next_actions = agent_next_actions[agent_i_action_offset:(agent_i_action_offset+self.action_count)]
-        #
-        #     current_q = DQNPolicy.Q_TABLE[state][agent_i_action_offset + action]
-        #
-        #     # using Bellman Optimality Equation to update q function
-        #
-        #     new_q = reward + DQNPolicy.DISCOUNT_FACTOR * max(agent_i_next_actions)
-        #
-        #     DQNPolicy.Q_TABLE[state][agent_i_action_offset + action] += DQNPolicy.LEARNING_RATE * (new_q - current_q)
-        #
-        #     t = 1
-            # self.Q_TABLE[state][action] += DQNPolicy.LEARNING_RATE * (new_q - current_q)
+        # DQNPolicy.Q_TABLE[state][n_action_index] += dQ
+
+
+
 
     def _get_n_actions_index(self, action_n):
         binary_string = ''
@@ -155,10 +159,9 @@ class DQNPolicy:
         if True or np.random.rand() < DQNPolicy.EPSILON:
             # take random action
             for i in range(agent_count):
-                agent = self.env.get_agent(i)
-                pos = agent.get_position()
-                agent_row = self.env.get_row(pos)
-                agent_col = self.env.get_col(pos)
+                state = state_n[i]
+                agent_row = state[0]
+                agent_col = state[1]
 
                 my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
                 action = np.random.choice(my_actions)
@@ -167,10 +170,9 @@ class DQNPolicy:
             # take action according to the q function table
             # all_possible_agent_actions = DQNPolicy.Q_TABLE[state]
             for i in range(self.agent_count):
-                agent = self.env.get_agent(i)
-                pos = agent.get_position()
-                agent_row = self.env.get_row(pos)
-                agent_col = self.env.get_col(pos)
+                state = state_n[i]
+                agent_row = state[0]
+                agent_col = state[1]
 
                 my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
                 # pickup best action in Q table
