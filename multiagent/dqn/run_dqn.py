@@ -92,21 +92,23 @@ if __name__ == "__main__":
             episode_time_step += 1
             # next_state_n = copy.deepcopy(state_n)
 
-            action_n = []
             action_n = policy.get_action_n(state_n)
+            next_state_n = []
+            reward_n = []
+            done_n = []
 
             for i in range(agent_count):
                 agent = env.get_agent(i)
                 action = action_n[i]
-                # action = policy.get_agent_action(i, next_state_n)
                 state = state_n[i]
                 next_state, reward, done = env.agent_step(agent, action)
 
+                next_state_n.append(next_state)
+                reward_n.append(reward)
+                done_n.append(done)
+
                 if state[0] != next_state[0] or state[1] != next_state[1]:
                     agent.set_last_action(action)
-
-                next_state_n[i] = copy.deepcopy(next_state)
-                reward_n[i] = reward
 
                 cumulative_reward += reward
                 score += reward
@@ -115,6 +117,8 @@ if __name__ == "__main__":
 
             policy.learn(state_n, action_n, reward_n, next_state_n)
 
+            if np.max(done_n) == 1:
+                break
             #memory.append_to_memory(state_n, next_state_n, action_n, model_output, prob, reward_n)
 
             # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(

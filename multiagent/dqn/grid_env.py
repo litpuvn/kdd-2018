@@ -175,18 +175,20 @@ class Env(tk.Tk):
     # Starting and terminal state
     # ===================
     def starting_state(self):
-        # 2D zero grid with a 1 at top-left corner
-        state = np.zeros((self.Ny, self.Nx), dtype=np.int)
-        for v in self.victims:
-            v_row = self.get_row(v.get_position())
-            v_col = self.get_col(v.get_position())
 
-            if v.get_reward() > 0: # true victims
-                state[v_row, v_col] = 1
-            else: # obstacles
-                state[v_row, v_col] = -1
+        self.reset_agents()
 
-        return state
+        return self.current_state()
+
+    def current_state(self):
+        state_n = []
+        for a in self.agents:
+            pos = a.get_position()
+            row = self.get_row(pos)
+            col = self.get_col(pos)
+            state_n.append([row, col])
+
+        return state_n
 
     def reset_agents(self):
         states = {}
@@ -360,10 +362,15 @@ class Env(tk.Tk):
         if col < 0 or row < 0 or col >= self.WIDTH or row >= self.HEIGHT:
             return True
 
-        for a in self.agents:
-            if a.get_rewards() >= 0:
+        for v in self.victims:
+            if v.get_reward() >= 0:
                 continue
-            if a.get_row() == row and a.get_col() == col:
+
+            # obstacles have negative rewards
+            pos = v.get_position()
+            v_row = self.get_row(pos)
+            v_col = self.get_col(pos)
+            if v_row == row and v_col == col:
                 return True
 
         return False

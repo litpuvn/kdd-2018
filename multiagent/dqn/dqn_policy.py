@@ -32,10 +32,12 @@ class DQNPolicy:
 
         self.agent_count = len(self.env.get_agents())
 
-        if os.path.isfile('q_table_bk_2.log'):
-            DQNPolicy.Q_TABLE = Util.read_q_table('q_table_bk.log')
-        else:
-            DQNPolicy.Q_TABLE = defaultdict(lambda: list(0 for i in range(self.action_count**self.agent_count)))
+        # if os.path.isfile('q_table_bk_2.log'):
+        #     DQNPolicy.Q_TABLE = Util.read_q_table('q_table_bk.log')
+        # else:
+        #     DQNPolicy.Q_TABLE = defaultdict(lambda: list(0 for i in range(self.action_count**self.agent_count)))
+
+        DQNPolicy.Q_TABLE = np.zeros((env.HEIGHT, env.WIDTH, self.agent_count, self.action_count), dtype=np.float)
 
         self.state_space = 1
         for i in range(self.agent_count):
