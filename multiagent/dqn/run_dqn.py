@@ -85,12 +85,12 @@ if __name__ == "__main__":
         while True:
             env.render()
             done = False
-            reward_n = np.zeros(agent_count)
+            # reward_n = np.zeros(agent_count)
             counter = counter + 1
             # take action and proceed one step in the environment
             global_step += 1
             episode_time_step += 1
-            next_state_n = copy.deepcopy(state_n)
+            # next_state_n = copy.deepcopy(state_n)
 
             action_n = []
             action_n = policy.get_action_n(state_n)

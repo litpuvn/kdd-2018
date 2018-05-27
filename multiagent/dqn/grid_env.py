@@ -147,14 +147,14 @@ class Env(tk.Tk):
         time.sleep(0.5)
 
         # set random position for agents
-        state = self.reset_agents()
+        self.reset_agents()
         #
         self.reset_victims_state()
 
         self.render()
 
         # get current state from agent positions
-        return state
+        return self.starting_state()
 
     # def reset_victims(self):
     #     for v in self.victims:
@@ -330,6 +330,55 @@ class Env(tk.Tk):
         pos = self.get_pos_from_row_and_col(row, col)
 
         return self.add_agent_at_pos(agent, pos)
+
+    # agent position in the form (row, col)
+    def allowed_agent_actions(self, agent_row, agent_col):
+        actions = []
+        # test move up
+        hit = self.hit_walls(agent_row-1, agent_col)
+        if not hit:
+            actions.append(GO_UP)
+
+        # test move down
+        hit = self.hit_walls(agent_row + 1, agent_col)
+        if not hit:
+            actions.append(GO_DOWN)
+
+        # test move left
+        hit = self.hit_walls(agent_row, agent_col-1)
+        if not hit:
+            actions.append(GO_LEFT)
+
+        # test move right
+        hit = self.hit_walls(agent_row, agent_col + 1)
+        if not hit:
+            actions.append(GO_RIGHT)
+
+        return actions
+
+    def hit_walls(self, row, col):
+        if col < 0 or row < 0 or col >= self.WIDTH or row >= self.HEIGHT:
+            return True
+
+        for a in self.agents:
+            if a.get_rewards() >= 0:
+                continue
+            if a.get_row() == row and a.get_col() == col:
+                return True
+
+        return False
+
+    def allowed_actions(self, state_n):
+        rows_major_cols_style = np.nonzero(state_n > 0)
+        rows = rows_major_cols_style[0]
+        cols = rows_major_cols_style[1]
+
+        possible_actions = []
+        for row, col in zip(rows, cols):
+            acts = self.allowed_agent_actions(agent_row=row, agent_col=col)
+            possible_actions.append(acts)
+
+        return possible_actions
 
     def add_agent(self, agent):
         if self._contain_agent(agent):

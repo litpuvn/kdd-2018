@@ -150,69 +150,33 @@ class DQNPolicy:
         action_n = []
         agent_count = len(self.env.get_agents())
 
-        state = self._get_state_string(state_n)
+        if True or np.random.rand() < DQNPolicy.EPSILON:
+            # take random action
+            for i in range(agent_count):
+                agent = self.env.get_agent(i)
+                pos = agent.get_position()
+                agent_row = self.env.get_row(pos)
+                agent_col = self.env.get_col(pos)
 
-        # # take action according to the q function table
-        # all_possible_agent_actions = DQNPolicy.Q_TABLE[state]
-        # for i in range(self.agent_count):
-        #     action = self._arg_max(all_possible_agent_actions[i])
-        #     action_n.append(action)
+                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
+                action = np.random.choice(my_actions)
+                action_n.append(action)
+        else:
+            # take action according to the q function table
+            # all_possible_agent_actions = DQNPolicy.Q_TABLE[state]
+            for i in range(self.agent_count):
+                agent = self.env.get_agent(i)
+                pos = agent.get_position()
+                agent_row = self.env.get_row(pos)
+                agent_col = self.env.get_col(pos)
 
-        state_space_len = len(DQNPolicy.Q_TABLE)
-        # print("state space: ", state_space_len)
+                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
+                # pickup best action in Q table
+                Q_s = DQNPolicy.Q_TABLE[agent_row, agent_col, i, my_actions]
+                actions_Qmax_allowed = my_actions[np.flatnonzero(Q_s == np.max(Q_s))]
+                action = np.random.choice(actions_Qmax_allowed)
 
-        # if np.random.rand() < DQNPolicy.EPSILON:
-        #     # take random action
-        #     for i in range(agent_count):
-        #         action = np.random.choice(self.actions)
-        #         action_n.append(action)
-        # else:
-        # take action according to the q function table
-        all_possible_agent_actions = DQNPolicy.Q_TABLE[state]
-        n_action_index = self._get_indices_at_max_value(all_possible_agent_actions)
-        n_action_bin = bin(n_action_index)
-        n_action_bin = n_action_bin.lstrip("0b")
-
-        missing_char_count = 2**self.agent_count - len(n_action_bin)
-        for i in range(missing_char_count):
-            n_action_bin = '0' + n_action_bin
-
-        actions = []
-        for i in range(0, len(n_action_bin), 2):
-            action_i = n_action_bin[i:(i+2)]
-            action_i = int(action_i, 2)
-            actions.append(action_i)
-
-        actions = list(reversed(actions))
-        for i in range(len(actions)):
-            agent = self.env.get_agent(i)
-            action_i = actions[i]
-            while self.env.turn_back(agent.get_last_action(), action_i):
-                action_i = np.random.choice(self.actions)
-
-            action_n.append(action_i)
-
-        # for i in range(self.agent_count):
-        #     agent_action_offset = i * self.action_count
-        #     agent_action_end_offset = agent_action_offset + self.action_count
-        #     agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
-        #     action = self._get_indices_at_max_value(agent_i_actions)
-        #     action_n.append(action)
-
-        # if np.random.rand() < DQNPolicy.EPSILON and state_space_len < self.state_space:
-        #     # take random action
-        #     for i in range(agent_count):
-        #         action = np.random.choice(self.actions)
-        #         action_n.append(action)
-        # else:
-        #     # take action according to the q function table
-        #     all_possible_agent_actions = DQNPolicy.Q_TABLE[state]
-        #     for i in range(self.agent_count):
-        #         agent_action_offset = i * self.action_count
-        #         agent_action_end_offset = agent_action_offset + self.action_count
-        #         agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
-        #         action = self._get_indices_at_max_value(agent_i_actions)
-        #         action_n.append(action)
+                action_n.append(action)
 
         return action_n
 
