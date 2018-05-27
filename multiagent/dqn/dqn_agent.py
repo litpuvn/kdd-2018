@@ -34,8 +34,13 @@ class DQNAgent(BaseAgent):
         pos = self.get_position()
         current_row = self.env.get_row(pos)
         current_col = self.env.get_col(pos)
+
         state = [current_row, current_col]
         next_state = np.add(state, self.action_coords[action])
+
+        if self.env.hit_walls(next_state[0], next_state[1]):
+            raise Exception('invalid position, agent=' + str(self.get_id()))
+
         shift_row = next_state[0] - current_row
         shift_col = next_state[1] - current_col
 

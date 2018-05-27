@@ -163,7 +163,18 @@ class DQNPolicy:
                 agent_row = state[0]
                 agent_col = state[1]
 
+                agent = self.env.get_agent(i)
+                pos = agent.get_position()
+                a_r = self.env.get_row(pos)
+                a_c = self.env.get_col(pos)
+
+                if agent_row != a_r or agent_col != a_c:
+                    raise Exception('invalid order of agent')
+
                 my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
+                # validate all my_actions
+
+
                 action = np.random.choice(my_actions)
                 action_n.append(action)
         else:

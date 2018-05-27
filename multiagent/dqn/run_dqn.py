@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     for episode in range(TOTAL_EPISODES):
         # state_n is position of each agent {agent_0: [r1, c1], agent_1: [r2, c2]}
-        state_n = env.reset_n()
+        env.reset_n()
         counter = 0
         cumulative_reward = 0
         score = 0
@@ -91,7 +91,7 @@ if __name__ == "__main__":
             global_step += 1
             episode_time_step += 1
             # next_state_n = copy.deepcopy(state_n)
-
+            state_n = env.current_state()
             action_n = policy.get_action_n(state_n)
             next_state_n = []
             reward_n = []
@@ -123,8 +123,8 @@ if __name__ == "__main__":
             # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(
             #     reward_n) + "; next_state=" + str(next_state_n))
 
-            state_n = copy.deepcopy(next_state_n)
-            env.print_value_all(DQNPolicy.Q_TABLE)
+            # state_n = copy.deepcopy(next_state_n)
+            # env.print_value_all(DQNPolicy.Q_TABLE)
 
             # if episode ends, then break
             if done:
@@ -148,8 +148,8 @@ if __name__ == "__main__":
             pylab.plot(episodes, episode_time_steps, 'b')
             pylab.savefig("./save_graph/q_policy_time_step.png")
 
-            for log_r in policy.get_qtable():
-                q_table_logger.info(log_r)
+            # for log_r in policy.get_qtable():
+            #     q_table_logger.info(log_r)
 
         # Clear memory for next episode
         # memory.clear_memory()

@@ -246,7 +246,7 @@ class Env(tk.Tk):
         c = self.get_col(pos)
 
         if self.hit_walls(r, c):
-            raise Exception('invalid position, agent=' + agent.get_id())
+            raise Exception('invalid position, agent=' + str(agent.get_id()))
 
         reward = STEP_PENALTY
 
