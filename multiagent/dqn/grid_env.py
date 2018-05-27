@@ -253,6 +253,9 @@ class Env(tk.Tk):
         for v in self.victims:
             if v.get_reward() < 0:
                 continue
+            if v.is_rescued():
+                continue
+
             v_pos = v.get_position()
             v_r = self.get_row(v_pos)
             v_c = self.get_col(v_pos)
