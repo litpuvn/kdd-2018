@@ -240,12 +240,43 @@ class Env(tk.Tk):
 
         return base_action, reward
 
+    def get_reward_for_agent(self, agent):
+        pos = agent.get_position()
+        r = self.get_row(pos)
+        c = self.get_col(pos)
+
+        if self.hit_walls(r, c):
+            raise Exception('invalid position, agent=' + agent.get_id())
+
+        reward = STEP_PENALTY
+
+        for v in self.victims:
+            if v.get_reward() < 0:
+                continue
+            v_pos = v.get_position()
+            v_r = self.get_row(v_pos)
+            v_c = self.get_col(v_pos)
+
+            if r == v_r and c == v_c:
+                reward = v.get_reward()
+                v.set_rescued()
+                break
+
+        return reward
+
     def agent_step(self, agent, action):
         agent_resource_id = agent.get_resource_id()
-        base_action, reward = self._calculate_step(agent, action)
+
+        next_state, shift_row, shift_col = agent.perform_action(action)
+        reward = self.get_reward_for_agent(agent)
+
+        # base_action, reward = self._calculate_step(agent, action)
         self.render()
-        # move agent
-        self.canvas.move(agent_resource_id, base_action[0], base_action[1])
+        # move agent - with canvas, we must convert to canvas coordintes
+        shift_x = shift_col * UNIT
+        shift_y = shift_row * UNIT
+
+        self.canvas.move(agent_resource_id, shift_x, shift_y)
         # move rectangle to top level of canvas
         self.canvas.tag_raise(agent_resource_id)
 
@@ -257,29 +288,19 @@ class Env(tk.Tk):
         col = self.get_col_from_coord(x_coord)
 
         pos = self.get_pos_from_row_and_col(row, col)
-        agent.set_position(pos)
+        if pos != agent.get_position():
+            raise Exception('Invalid move causing wrong position, agent=' + str(agent.get_id()))
+
         done = False
 
-        for v in self.victims:
-            if agent.get_position() == v.get_position():
-                agent.add_rescued_victims(v)
-
-                if not v.is_rescued():
-                    reward = reward + v.get_reward()
-                    v.set_rescued()
-                elif v.get_reward() < 0: # penalty for revisiting
-                    reward = reward + v.get_reward()
-
-                    # done = True
-
-        # action does not save anyone will be discounted STEP_PENALTY
-        reward += STEP_PENALTY*1
-
-        # # done if all victims are rescued
-        unrescued_victims = self.get_unrescued_victims()
-        done = len(unrescued_victims) == 0
-
         return [row, col], reward, done
+
+    def is_terminated(self):
+        for v in self.victims:
+            if not v.is_rescued():
+                return False
+
+        return True
 
     def render(self):
         time.sleep(0.03)

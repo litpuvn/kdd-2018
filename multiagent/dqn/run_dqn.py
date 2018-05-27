@@ -117,9 +117,8 @@ if __name__ == "__main__":
 
             policy.learn(state_n, action_n, reward_n, next_state_n)
 
-            if np.max(done_n) == 1:
-                break
-            #memory.append_to_memory(state_n, next_state_n, action_n, model_output, prob, reward_n)
+            if env.is_terminated():
+                done = True
 
             # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(
             #     reward_n) + "; next_state=" + str(next_state_n))
