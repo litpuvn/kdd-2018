@@ -66,7 +66,7 @@ class Environment:
         return np.array_equal(state, np.array([self.Ny-1, self.Nx-1], dtype=np.int))
 
     # ========================
-    # Action utilities
+    # Action utilities - jumping 1 cell
     # ========================
     def perform_action(self, state, action):
         return np.add(state, self.action_coords[action])
