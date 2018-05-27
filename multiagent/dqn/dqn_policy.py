@@ -156,7 +156,7 @@ class DQNPolicy:
         action_n = []
         agent_count = len(self.env.get_agents())
 
-        if True or np.random.rand() < DQNPolicy.EPSILON:
+        if np.random.rand() < DQNPolicy.EPSILON:
             # take random action
             for i in range(agent_count):
                 state = state_n[i]
@@ -188,7 +188,9 @@ class DQNPolicy:
                 my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
                 # pickup best action in Q table
                 Q_s = DQNPolicy.Q_TABLE[agent_row, agent_col, i, my_actions]
-                actions_Qmax_allowed = my_actions[np.flatnonzero(Q_s == np.max(Q_s))]
+                items = Q_s == np.max(Q_s)
+                indices = np.flatnonzero(items)
+                actions_Qmax_allowed = my_actions[indices]
                 action = np.random.choice(actions_Qmax_allowed)
 
                 action_n.append(action)

@@ -377,7 +377,7 @@ class Env(tk.Tk):
         if not hit:
             actions.append(GO_RIGHT)
 
-        return actions
+        return np.array(actions)
 
     def hit_walls(self, row, col):
         if col < 0 or row < 0 or col >= self.WIDTH or row >= self.HEIGHT:
