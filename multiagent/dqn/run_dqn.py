@@ -18,7 +18,7 @@ import pylab
 from multiagent.grid.distribution import Distribution
 import logging
 
-TOTAL_EPISODES = 500
+TOTAL_EPISODES = 5000
 
 if __name__ == "__main__":
     max_agent_count = 50
@@ -117,14 +117,14 @@ if __name__ == "__main__":
 
             policy.learn(state_n, action_n, reward_n, next_state_n)
 
-            if env.is_terminated():
+            if env.is_terminated() or sum(done_n) > 0:
                 done = True
 
             # logger.info("state=" + str(state_n) + "; action=" + str(action_n) + "; reward=" + str(
             #     sum(reward_n)) + "; next_state=" + str(next_state_n))
 
             # state_n = copy.deepcopy(next_state_n)
-            # env.print_value_all(DQNPolicy.Q_TABLE)
+            env.print_value_all(DQNPolicy.Q_TABLE)
 
             # if episode ends, then break
             if done:

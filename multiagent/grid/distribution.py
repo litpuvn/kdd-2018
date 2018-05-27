@@ -63,7 +63,7 @@ class Distribution:
         # testing
         self.volunteers = [
             # [4, 0],
-            [0, 0],
+            # [0, 0],
             [0, 0]
         ]
 
@@ -78,9 +78,9 @@ class Distribution:
         ]
 
         self.victims = [
-            [1, 2, -10],
-            [2, 1, -10],
-            [2, 2,  100],
+            [1, 2, -100],
+            [2, 1, -100],
+            # [2, 2,  100],
             [4, 2,  100]
         ]
 

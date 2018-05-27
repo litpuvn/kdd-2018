@@ -245,14 +245,14 @@ class Env(tk.Tk):
         r = self.get_row(pos)
         c = self.get_col(pos)
 
-        if self.hit_walls(r, c):
-            raise Exception('invalid position, agent=' + str(agent.get_id()))
+        # if self.hit_walls(r, c):
+        #     raise Exception('invalid position, agent=' + str(agent.get_id()))
 
         reward = STEP_PENALTY
 
         for v in self.victims:
-            if v.get_reward() < 0:
-                continue
+            # if v.get_reward() < 0:
+            #     continue
             if v.is_rescued():
                 continue
 
@@ -262,7 +262,8 @@ class Env(tk.Tk):
 
             if r == v_r and c == v_c:
                 reward = v.get_reward()
-                v.set_rescued()
+                if reward > 0:
+                    v.set_rescued()
                 break
 
         return reward
@@ -294,7 +295,7 @@ class Env(tk.Tk):
         if pos != agent.get_position():
             raise Exception('Invalid move causing wrong position, agent=' + str(agent.get_id()))
 
-        done = False
+        done = self.hit_walls(row, col)
 
         return [row, col], reward, done
 
@@ -360,32 +361,58 @@ class Env(tk.Tk):
     # agent position in the form (row, col)
     def allowed_agent_actions(self, agent_row, agent_col):
         actions = []
-        # test move up
-        hit = self.hit_walls(agent_row-1, agent_col)
-        if not hit:
-            actions.append(GO_UP)
 
-        # test move down
-        hit = self.hit_walls(agent_row + 1, agent_col)
-        if not hit:
+        # move up
+        out_bound = self.out_of_bound(agent_row-1, agent_col)
+        if not out_bound:
+            actions.append(GO_UP)
+        # move down
+        out_bound = self.out_of_bound(agent_row + 1, agent_col)
+        if not out_bound:
             actions.append(GO_DOWN)
 
         # test move left
-        hit = self.hit_walls(agent_row, agent_col-1)
-        if not hit:
+        out_bound = self.out_of_bound(agent_row, agent_col-1)
+        if not out_bound:
             actions.append(GO_LEFT)
 
         # test move right
-        hit = self.hit_walls(agent_row, agent_col + 1)
-        if not hit:
+        out_bound = self.out_of_bound(agent_row, agent_col + 1)
+        if not out_bound:
             actions.append(GO_RIGHT)
+
+        # # test move up
+        # hit = self.hit_walls(agent_row-1, agent_col)
+        # if not hit:
+        #     actions.append(GO_UP)
+        #
+        # # test move down
+        # hit = self.hit_walls(agent_row + 1, agent_col)
+        # if not hit:
+        #     actions.append(GO_DOWN)
+        #
+        # # test move left
+        # hit = self.hit_walls(agent_row, agent_col-1)
+        # if not hit:
+        #     actions.append(GO_LEFT)
+        #
+        # # test move right
+        # hit = self.hit_walls(agent_row, agent_col + 1)
+        # if not hit:
+        #     actions.append(GO_RIGHT)
 
         return np.array(actions)
 
-    def hit_walls(self, row, col):
+    def out_of_bound(self, row, col):
         if col < 0 or row < 0 or col >= self.WIDTH or row >= self.HEIGHT:
             return True
 
+        return False
+
+    def hit_walls(self, row, col):
+        # if col < 0 or row < 0 or col >= self.WIDTH or row >= self.HEIGHT:
+        #     return True
+        #
         for v in self.victims:
             if v.get_reward() >= 0:
                 continue
@@ -672,11 +699,15 @@ class Env(tk.Tk):
         self.texts.clear()
         for i in range(self.HEIGHT):
             for j in range(self.WIDTH):
-                for action in range(self.n_actions):
-                    state = str([i, j])
-                    if state in q_table.keys():
-                        temp = q_table[str(state)][action]
+                for agent_id in range(len(self.agents)):
+                    for action in range(self.n_actions):
+                        temp = q_table[(i, j, agent_id, action)]
                         self.text_value(i, j, round(temp, 2), action)
+                        #
+                        # state = str([i, j])
+                        # if state in q_table.keys():
+                        #     temp = q_table[str(state)][action]
+                        #     self.text_value(i, j, round(temp, 2), action)
 
     def text_value(self, row, col, contents, action, font='Helvetica', size=10,
                    style='normal', anchor="nw"):
