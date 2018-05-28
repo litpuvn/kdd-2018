@@ -18,7 +18,7 @@ import pylab
 from multiagent.grid.distribution import Distribution
 import logging
 
-TOTAL_EPISODES = 5000
+TOTAL_EPISODES = 15000
 
 if __name__ == "__main__":
     max_agent_count = 50
