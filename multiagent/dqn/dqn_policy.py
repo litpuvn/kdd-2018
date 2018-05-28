@@ -188,7 +188,6 @@ class DQNPolicy:
         if q_val != max_val:
             raise Exception('Invalid suggested action_n')
 
-        print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', max_val)
         return max_val, action_n
 
 
@@ -219,6 +218,7 @@ class DQNPolicy:
         else:
 
             qmax, action_n = self._get_max_q_at_state(state_n)
+            print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', qmax)
 
         return action_n
 
