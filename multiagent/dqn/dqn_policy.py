@@ -210,14 +210,13 @@ class DQNPolicy:
                 if agent_row != a_r or agent_col != a_c:
                     raise Exception('invalid order of agent')
 
-                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
+                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
                 # validate all my_actions
 
                 action = np.random.choice(my_actions)
                 action_n.append(action)
         else:
 
-            action_n = []
             q_state = ()
             action_n_tmp = []
             for i in range(self.agent_count):
@@ -227,7 +226,7 @@ class DQNPolicy:
                 t = (agent_row, agent_col)
                 q_state += t
 
-                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col)
+                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
                 action_n_tmp.append(my_actions)
 
             combination = itertools.product(*action_n_tmp)

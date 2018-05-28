@@ -359,26 +359,29 @@ class Env(tk.Tk):
         return self.add_agent_at_pos(agent, pos)
 
     # agent position in the form (row, col)
-    def allowed_agent_actions(self, agent_row, agent_col):
+    def allowed_agent_actions(self, agent_row, agent_col, agent_id):
         actions = []
 
+        agent = self.get_agent(agent_id)
+
+        last_action = agent.get_last_action()
         # move up
         out_bound = self.out_of_bound(agent_row-1, agent_col)
-        if not out_bound:
+        if not out_bound and last_action != GO_DOWN:
             actions.append(GO_UP)
         # move down
         out_bound = self.out_of_bound(agent_row + 1, agent_col)
-        if not out_bound:
+        if not out_bound and last_action != GO_UP:
             actions.append(GO_DOWN)
 
         # test move left
         out_bound = self.out_of_bound(agent_row, agent_col-1)
-        if not out_bound:
+        if not out_bound and last_action != GO_RIGHT:
             actions.append(GO_LEFT)
 
         # test move right
         out_bound = self.out_of_bound(agent_row, agent_col + 1)
-        if not out_bound:
+        if not out_bound and last_action != GO_LEFT:
             actions.append(GO_RIGHT)
 
         # # test move up
@@ -432,9 +435,11 @@ class Env(tk.Tk):
         cols = rows_major_cols_style[1]
 
         possible_actions = []
+        i = 0
         for row, col in zip(rows, cols):
-            acts = self.allowed_agent_actions(agent_row=row, agent_col=col)
+            acts = self.allowed_agent_actions(agent_row=row, agent_col=col, agent_id=i)
             possible_actions.append(acts)
+            i += 1
 
         return possible_actions
 
