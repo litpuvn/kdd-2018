@@ -195,7 +195,7 @@ class DQNPolicy:
         action_n = []
         agent_count = len(self.env.get_agents())
 
-        if np.random.rand() < DQNPolicy.EPSILON and episode < 3000:
+        if np.random.rand() < DQNPolicy.EPSILON and episode < 5000:
             # take random action
             for i in range(agent_count):
                 state = state_n[i]
