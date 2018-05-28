@@ -229,17 +229,20 @@ class DQNPolicy:
                 my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
                 action_n_tmp.append(my_actions)
 
-            combination = itertools.product(*action_n_tmp)
-            # combination = itertools.product(*[[1,2], [3,4,5]])
-            # for i in combination:
-            #     print(i)
-            state = q_state + tuple(action_n_tmp)
-            Q_s = DQNPolicy.Q_TABLE[state]
-            # pickup best action in Q table
-            max_val = max(Q_s)
+            # combination = itertools.product(*action_n_tmp)
             actions_Qmax_allowed = []
+            # find max q
+            max_val = None
+            for i in itertools.product(*action_n_tmp):
+                state = q_state + i
+                val = DQNPolicy.Q_TABLE[state]
+                if max_val is None:
+                    max_val = val
+                if val > max_val:
+                    max_val = val
 
-            for i in combination:
+            # get actions
+            for i in itertools.product(*action_n_tmp):
                 state = q_state + i
                 val = DQNPolicy.Q_TABLE[state]
                 if val == max_val:
@@ -247,8 +250,9 @@ class DQNPolicy:
                     for a in i:
                         tmp.append(a)
                     actions_Qmax_allowed.append(tmp)
-
-            random_action_index = random.randrange(0,len(actions_Qmax_allowed))
+            if len(actions_Qmax_allowed) < 1:
+                print('error')
+            random_action_index = random.randrange(0, len(actions_Qmax_allowed))
             action_n = actions_Qmax_allowed[random_action_index]
 
             # take action according to the q function table

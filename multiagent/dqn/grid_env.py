@@ -700,6 +700,9 @@ class Env(tk.Tk):
 
     # support printing for 1 agent only
     def print_value_all(self, q_table):
+        if len(self.agents) > 1:
+            return
+
         for i in self.texts:
             self.canvas.delete(i)
         self.texts.clear()
