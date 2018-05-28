@@ -124,7 +124,7 @@ if __name__ == "__main__":
             #     sum(reward_n)) + "; next_state=" + str(next_state_n))
 
             # state_n = copy.deepcopy(next_state_n)
-            # env.print_value_all(DQNPolicy.Q_TABLE)
+            env.print_value_all(DQNPolicy.Q_TABLE)
 
             # if episode ends, then break
             if done:

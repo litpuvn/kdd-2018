@@ -693,16 +693,16 @@ class Env(tk.Tk):
 
         return logger
 
+    # support printing for 1 agent only
     def print_value_all(self, q_table):
         for i in self.texts:
             self.canvas.delete(i)
         self.texts.clear()
         for i in range(self.HEIGHT):
             for j in range(self.WIDTH):
-                for agent_id in range(len(self.agents)):
-                    for action in range(self.n_actions):
-                        temp = q_table[(i, j, agent_id, action)]
-                        self.text_value(i, j, round(temp, 2), action)
+                for action in range(self.n_actions):
+                    temp = q_table[(i, j, action)]
+                    self.text_value(i, j, round(temp, 2), action)
                         #
                         # state = str([i, j])
                         # if state in q_table.keys():
