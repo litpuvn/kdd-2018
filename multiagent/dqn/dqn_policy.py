@@ -91,19 +91,23 @@ class DQNPolicy:
         # def update_q_val(row, col, agent_id, action, dq):
         #     DQNPolicy.Q_TABLE[(row, col, agent_id, action)] += dq
 
-        def get_next_max_q(nxt_state_n):
-            state = ()
-            for i in range(len(nxt_state_n)):
-                state += tuple(nxt_state_n[i])
-
-            feasible_values = DQNPolicy.Q_TABLE[state]
-            q_max = np.max(feasible_values)
-
-            return q_max
+        # def get_next_max_q(nxt_state_n):
+        #     state = ()
+        #     action_n = []
+        #     for i in range(len(nxt_state_n)):
+        #         state += tuple(nxt_state_n[i])
+        #         allowed_actions = self.env.allowed_agent_actions(agent_row=nxt_state_n[0], agent_col=nxt_state_n[1], agent_id=i)
+        #         action_n.append(allowed_actions)
+        #
+        #
+        #     feasible_values = DQNPolicy.Q_TABLE[state]
+        #     q_max = np.max(feasible_values)
+        #
+        #     return q_max
         current_q_state = self._build_q_state(state_n, action_n)
         q_val = DQNPolicy.Q_TABLE[current_q_state]
 
-        next_q = get_next_max_q(next_state_n)
+        next_q, action_n = self._get_max_q_at_state(next_state_n)
 
         new_q = sum(reward_n) + DQNPolicy.DISCOUNT_FACTOR * next_q
         dq = DQNPolicy.LEARNING_RATE * (new_q - q_val)
@@ -191,6 +195,50 @@ class DQNPolicy:
 
         return action
 
+    def _get_max_q_at_state(self, state_n):
+        q_state = ()
+        action_n_tmp = []
+        for i in range(self.agent_count):
+            state = state_n[i]
+            agent_row = state[0]
+            agent_col = state[1]
+            t = (agent_row, agent_col)
+            q_state += t
+
+            my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+            action_n_tmp.append(my_actions)
+
+        # combination = itertools.product(*action_n_tmp)
+        actions_Qmax_allowed = []
+        # find max q
+        max_val = None
+        for i in itertools.product(*action_n_tmp):
+            state = q_state + i
+            val = DQNPolicy.Q_TABLE[state]
+            if max_val is None:
+                max_val = val
+            if val > max_val:
+                max_val = val
+
+        # get actions
+        for i in itertools.product(*action_n_tmp):
+            state = q_state + i
+            val = DQNPolicy.Q_TABLE[state]
+            if val == max_val:
+                tmp = []
+                for a in i:
+                    tmp.append(a)
+                actions_Qmax_allowed.append(tmp)
+
+        if len(actions_Qmax_allowed) < 1:
+            raise Exception('Error action q max')
+
+        random_action_index = random.randrange(0, len(actions_Qmax_allowed))
+        action_n = actions_Qmax_allowed[random_action_index]
+
+        return max_val, action_n
+
+
     def get_action_n(self, state_n, episode=1):
         action_n = []
         agent_count = len(self.env.get_agents())
@@ -217,43 +265,7 @@ class DQNPolicy:
                 action_n.append(action)
         else:
 
-            q_state = ()
-            action_n_tmp = []
-            for i in range(self.agent_count):
-                state = state_n[i]
-                agent_row = state[0]
-                agent_col = state[1]
-                t = (agent_row, agent_col)
-                q_state += t
-
-                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
-                action_n_tmp.append(my_actions)
-
-            # combination = itertools.product(*action_n_tmp)
-            actions_Qmax_allowed = []
-            # find max q
-            max_val = None
-            for i in itertools.product(*action_n_tmp):
-                state = q_state + i
-                val = DQNPolicy.Q_TABLE[state]
-                if max_val is None:
-                    max_val = val
-                if val > max_val:
-                    max_val = val
-
-            # get actions
-            for i in itertools.product(*action_n_tmp):
-                state = q_state + i
-                val = DQNPolicy.Q_TABLE[state]
-                if val == max_val:
-                    tmp = []
-                    for a in i:
-                        tmp.append(a)
-                    actions_Qmax_allowed.append(tmp)
-            if len(actions_Qmax_allowed) < 1:
-                print('error')
-            random_action_index = random.randrange(0, len(actions_Qmax_allowed))
-            action_n = actions_Qmax_allowed[random_action_index]
+            qmax, action_n = self._get_max_q_at_state(state_n)
 
             # take action according to the q function table
             # for i in range(self.agent_count):
