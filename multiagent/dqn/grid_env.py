@@ -384,6 +384,8 @@ class Env(tk.Tk):
         if not out_bound and last_action != GO_LEFT:
             actions.append(GO_RIGHT)
 
+        if len(actions) < 1:
+            raise Exception('Invalid allowed actions')
         # # test move up
         # hit = self.hit_walls(agent_row-1, agent_col)
         # if not hit:
