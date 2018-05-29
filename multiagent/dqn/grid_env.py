@@ -253,17 +253,24 @@ class Env(tk.Tk):
         for v in self.victims:
             # if v.get_reward() < 0:
             #     continue
-            if v.is_rescued():
-                continue
+            # we need to catch the reward if it overlapped WALL.
+            # so that we cannot check is_rescued() here. It's okie to have some computation
+            # if v.is_rescued():
+            #     continue
 
             v_pos = v.get_position()
             v_r = self.get_row(v_pos)
             v_c = self.get_col(v_pos)
 
             if r == v_r and c == v_c:
-                reward = v.get_reward()
-                if reward > 0:
-                    v.set_rescued()
+
+                tmp = v.get_reward()
+                if tmp < 0:
+                    reward = tmp
+                else:
+                    if not v.is_rescued():
+                        v.set_rescued()
+                        reward = tmp
                 break
 
         return reward

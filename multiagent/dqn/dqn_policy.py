@@ -195,7 +195,7 @@ class DQNPolicy:
         action_n = []
         agent_count = len(self.env.get_agents())
 
-        if np.random.rand() < DQNPolicy.EPSILON and episode < 5000:
+        if np.random.rand() < DQNPolicy.EPSILON and episode < 4000:
             # take random action
             for i in range(agent_count):
                 state = state_n[i]
@@ -218,7 +218,7 @@ class DQNPolicy:
         else:
 
             qmax, action_n = self._get_max_q_at_state(state_n)
-            print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', qmax)
+            # print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', qmax)
 
         return action_n
 
