@@ -92,7 +92,7 @@ if __name__ == "__main__":
             episode_time_step += 1
             # next_state_n = copy.deepcopy(state_n)
             state_n = env.current_state()
-            action_n = policy.get_action_n(state_n, episode=episode)
+            action_n = policy.get_action_n(state_n, episode=episode, episode_time_step=episode_time_step)
             next_state_n = []
             reward_n = []
             done_n = []

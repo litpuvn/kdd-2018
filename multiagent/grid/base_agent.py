@@ -62,6 +62,9 @@ class BaseAgent:
 
         return True
 
+    def reset_last_action(self):
+        self.last_action = None
+
     def get_last_action(self):
         return self.last_action
 

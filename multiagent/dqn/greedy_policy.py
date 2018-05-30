@@ -97,7 +97,7 @@ class GreedyPolicy:
                     min_distance = tmp_distance
                     found_min = True
                 else:
-                    if tmp_distance < min_distance:
+                    if tmp_distance <= min_distance:
                         min_distance = tmp_distance
                         found_min = True
 
@@ -108,9 +108,12 @@ class GreedyPolicy:
             if found_min == True:
                 actions.append(my_act)
 
+        if len(distance_actions[min_distance]) < 1:
+            raise Exception('Invalid move')
+
         return distance_actions[min_distance]
 
-    def get_action_n(self, state_n, episode=1):
+    def get_action_n(self, state_n, episode=1, episode_time_step=1):
         action_n = []
         agent_count = len(self.env.get_agents())
         # take random action
@@ -128,7 +131,6 @@ class GreedyPolicy:
                 raise Exception('invalid order of agent')
 
             my_actions = self._get_greedy_best_first_search_actions(agent)
-
             action = np.random.choice(my_actions)
             action_n.append(action)
 
