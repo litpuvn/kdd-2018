@@ -30,7 +30,7 @@ class DQNAgent(BaseAgent):
     # ========================
     # Action utilities - jumping 1 cell
     # ========================
-    def perform_action(self, action):
+    def perform_action(self, action, actual_move=True):
         pos = self.get_position()
         current_row = self.env.get_row(pos)
         current_col = self.env.get_col(pos)
@@ -45,7 +45,9 @@ class DQNAgent(BaseAgent):
         shift_col = next_state[1] - current_col
 
         new_pos = self.env.get_pos_from_row_and_col(next_state[0], next_state[1])
-        self.set_position(new_pos)
+
+        if actual_move == True:
+            self.set_position(new_pos)
 
         return next_state, shift_row, shift_col
 
