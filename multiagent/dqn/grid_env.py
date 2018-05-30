@@ -242,6 +242,21 @@ class Env(tk.Tk):
 
         return base_action, reward
 
+    def get_action_from_direction(self, direction):
+        if direction == 'S':
+            return GO_DOWN
+
+        if direction == 'N':
+            return GO_UP
+
+        if direction == 'E':
+            return GO_RIGHT
+
+        if direction == 'W':
+            return GO_LEFT
+
+        raise Exception('Invalid direction')
+
     def get_reward_for_agent(self, agent):
         pos = agent.get_position()
         r = self.get_row(pos)
@@ -361,6 +376,38 @@ class Env(tk.Tk):
         self.agents.append(agent)
 
         return agent
+
+    def get_graph_representation(self):
+        maze = [
+            [0, 0, 0, 0, 0, ],
+            [0, 0, 0, 0, 0, ],
+            [0, 0, 0, 0, 0, ],
+            [0, 0, 0, 0, 0, ],
+            [0, 0, 0, 0, 0, ]
+        ]
+
+        # create obstacles
+        for v in self.victims:
+            if v.get_reward() >= 0:
+                continue
+
+            pos = v.get_position()
+            r = self.get_row(pos)
+            c = self.get_col(pos)
+            maze[r][c] = 1
+
+        height = len(maze)
+        width = len(maze[0]) if height else 0
+        graph = {(i, j): [] for j in range(width) for i in range(height) if not maze[i][j]}
+        for row, col in graph.keys():
+            if row < height - 1 and not maze[row + 1][col]:
+                graph[(row, col)].append(("S", (row + 1, col)))
+                graph[(row + 1, col)].append(("N", (row, col)))
+            if col < width - 1 and not maze[row][col + 1]:
+                graph[(row, col)].append(("E", (row, col + 1)))
+                graph[(row, col + 1)].append(("W", (row, col)))
+
+        return graph
 
     def add_agent_at_row_col(self, agent, row, col):
         pos = self.get_pos_from_row_and_col(row, col)
