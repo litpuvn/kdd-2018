@@ -197,6 +197,7 @@ class Env(tk.Tk):
             a.set_position(initial_pos)
             a.reset_rescued_victims()
             a.reset_last_action()
+            a.reset_history()
 
             x_coord = self.get_column_center_pixel(initial_pos)
             y_coord = self.get_row_center_pixel(initial_pos)

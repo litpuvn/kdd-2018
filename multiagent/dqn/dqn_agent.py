@@ -26,6 +26,8 @@ class DQNAgent(BaseAgent):
         # self.action_dict = {"up": 0, "down": 1, "left": 2, "right": 3}
         self.action_coords = np.array([[-1,0],  [1,0], [0,-1], [0,1]], dtype=np.int)
 
+        self.action_history = []
+
 
     # ========================
     # Action utilities - jumping 1 cell
@@ -48,9 +50,12 @@ class DQNAgent(BaseAgent):
 
         if actual_move == True:
             self.set_position(new_pos)
+            self.action_history.append({'pos': pos, 'action': action})
 
         return next_state, shift_row, shift_col
 
+    def reset_history(self):
+        self.action_history =[]
     # # update q function with sample <s, a, r, s'>
     # def learn(self, state, action, reward, next_state):
     #     current_q = self.Q_TABLE[state][action]
