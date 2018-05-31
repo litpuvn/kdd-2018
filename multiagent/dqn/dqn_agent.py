@@ -4,6 +4,7 @@ from multiagent.grid.grid_env import Env
 from collections import defaultdict
 from multiagent.grid.base_agent import BaseAgent
 
+from collections import deque
 
 class DQNAgent(BaseAgent):
 
@@ -28,7 +29,46 @@ class DQNAgent(BaseAgent):
 
         self.action_history = []
 
+        self.targets = None
 
+    def _step_distance(self, a_r, a_c, v_r, v_c):
+        return abs(a_r - v_r) + abs(a_c - v_c)
+
+    def setup_targets_order(self):
+        if self.targets is not None:
+            return
+
+        pos = self.get_position()
+        a_r = self.env.get_row(pos)
+        a_c = self.env.get_col(pos)
+
+        env = self.env
+
+        def target_distance(v):
+            pos = v.get_position()
+            v1_r = env.get_row(pos)
+            v1_c = env.get_col(pos)
+            d1 = abs(a_r - v1_r) + abs(a_c - v1_c)
+            return d1
+
+        my_victims = []
+        for v in self.env.victims:
+            if v.get_reward() <= 0:
+                continue
+
+            my_victims.append(v)
+
+        my_victims.sort(key=target_distance)
+        self.targets = my_victims
+
+    def pick_target(self):
+        for i in range(len(self.targets)):
+            v = self.targets[i]
+
+            if not v.is_rescued():
+                return v
+
+        raise Exception('Not found v')
     # ========================
     # Action utilities - jumping 1 cell
     # ========================
@@ -53,6 +93,16 @@ class DQNAgent(BaseAgent):
             self.action_history.append({'pos': pos, 'action': action})
 
         return next_state, shift_row, shift_col
+
+    def reset(self):
+        self.reset_rescued_victims()
+        self.reset_last_action()
+        self.reset_history()
+        self.targets = None
+        self.setup_targets_order()
+
+    def get_action_history(self):
+        return self.action_history
 
     def reset_history(self):
         self.action_history =[]

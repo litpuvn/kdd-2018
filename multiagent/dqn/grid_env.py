@@ -195,9 +195,7 @@ class Env(tk.Tk):
         for a in self.agents:
             initial_pos = a.get_initial_position()
             a.set_position(initial_pos)
-            a.reset_rescued_victims()
-            a.reset_last_action()
-            a.reset_history()
+            a.reset()
 
             x_coord = self.get_column_center_pixel(initial_pos)
             y_coord = self.get_row_center_pixel(initial_pos)
