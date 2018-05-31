@@ -62,6 +62,10 @@ class BFSPolicy:
         self.learning_rate = self.brain_info["learning_rate"]
 
         self.graph = self.env.get_graph_representation()
+        self.agent_last_target = {}
+
+    def reset(self):
+        self.agent_last_target = {}
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -69,9 +73,9 @@ class BFSPolicy:
     def _step_distance(self, a_r, a_c, v_r, v_c):
         return abs(a_r - v_r) + abs(a_c - v_c)
 
-
-    def _find_path(self, agent, victim):
-        pos = agent.get_position()
+    # find path should be from initial pos
+    def _find_path(self, agent, victim, agent_from_pos):
+        pos = agent_from_pos
         a_r = self.env.get_row(pos)
         a_c = self.env.get_col(pos)
 
@@ -80,17 +84,20 @@ class BFSPolicy:
         v_c = self.env.get_col(pos)
 
         start, goal = (a_r, a_c), (v_r, v_c)
-        queue = deque([("", start)])
-        visited = set()
         graph = self.graph
 
+        queue = deque([("", start)])
+        visited = set()
         while queue:
             path, current = queue.popleft()
             if current == goal:
-                first_step = path[0]
-                action = self.env.get_action_from_direction(first_step)
+                total_step_taken = len(agent.get_action_history())
+                if total_step_taken > len(path):
+                    raise Exception('Invalid path and historical steps')
 
-                return action, path
+                current_step = path[total_step_taken]
+                action = self.env.get_action_from_direction(current_step)
+                return action, total_step_taken, path
             if current in visited:
                 continue
             visited.add(current)
@@ -100,43 +107,26 @@ class BFSPolicy:
         raise Exception('No way')
 
     def _get_possible_actions(self, agent):
-        pos = agent.get_position()
-        a_r = self.env.get_row(pos)
-        a_c = self.env.get_col(pos)
 
-        # find closest target
-        min_distance = None
-        distance_targets = {}
-        found_min = False
-        for v in self.env.victims:
-            if v.get_reward() < 0 or v.is_rescued():
-                continue
-            v_r = self.env.get_row(v.get_position())
-            v_c = self.env.get_col(v.get_position())
-            tmp_target_distance = self._step_distance(a_r, a_c, v_r, v_c)
-            if min_distance is None:
-                min_distance = tmp_target_distance
-                found_min = True
-            else:
-                if tmp_target_distance <= min_distance:
-                    min_distance = tmp_target_distance
-                    found_min = True
+        agent_id = agent.get_id()
+        target_victim = agent.pick_target()
+        if agent_id not in self.agent_last_target:
+            agent.set_start_target_search_position(agent.get_position())
+            self.agent_last_target[agent_id] = target_victim
 
-            if min_distance not in distance_targets:
-                distance_targets[min_distance] = []
+        agent_pos = agent.get_start_target_search_position()
+        last_target_victim = self.agent_last_target[agent_id]
+        if target_victim is not last_target_victim:
+            agent_pos = agent.get_position()
+            agent.set_start_target_search_position(agent_pos)
 
-            targets = distance_targets[min_distance]
-            if found_min == True:
-                targets.append(v)
+            self.agent_last_target[agent_id] = target_victim
+            # reset history of first finding
+            agent.reset_history()
 
-        targets = distance_targets[min_distance]
-        if len(targets) < 1:
-            raise Exception('Not found target')
+        current_action, _, path = self._find_path(agent, target_victim, agent_from_pos=agent_pos)
 
-        target_victim = np.random.choice(targets)
-        first_action, path = self._find_path(agent, target_victim)
-
-        return [first_action]
+        return [current_action]
 
     def get_action_n(self, state_n, episode=1, episode_time_step=1):
         action_n = []

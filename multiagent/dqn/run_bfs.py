@@ -63,7 +63,6 @@ if __name__ == "__main__":
         env.add_victim_at_row_col(row_col[0], row_col[1], row_col[2])
 
     env.pack_canvas()
-
     memory = Memory(info)
     policy = BFSPolicy(env, info)
     logger = Env.setup_custom_logger("app", logging.INFO)
@@ -76,6 +75,8 @@ if __name__ == "__main__":
     for episode in range(TOTAL_EPISODES):
         # state_n is position of each agent {agent_0: [r1, c1], agent_1: [r2, c2]}
         env.reset_n()
+        policy.reset()
+
         counter = 0
         cumulative_reward = 0
         score = 0

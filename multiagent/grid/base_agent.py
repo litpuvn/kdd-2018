@@ -10,6 +10,7 @@ class BaseAgent:
         self.options = options
         self.rescued_victims = []
         self.last_action = None
+        self.start_target_search_pos = None
 
     def get_id(self):
         return self.agent_id
@@ -34,6 +35,12 @@ class BaseAgent:
 
     def get_initial_position(self):
         return self.init_pos
+
+    def set_start_target_search_position(self, pos):
+        self.start_target_search_pos = pos
+
+    def get_start_target_search_position(self):
+        return self.start_target_search_pos
 
     # by default, the agent does not have capability to learn anything
     def learn(self, state, action, reward, next_state):
