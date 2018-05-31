@@ -62,6 +62,7 @@ class DFSPolicy:
         self.learning_rate = self.brain_info["learning_rate"]
 
         self.graph = self.env.get_graph_representation()
+        self.agent_last_target = {}
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -70,8 +71,8 @@ class DFSPolicy:
         return abs(a_r - v_r) + abs(a_c - v_c)
 
     # find path should be from initial pos
-    def _find_path(self, agent, victim):
-        pos = agent.get_initial_position()
+    def _find_path(self, agent, victim, agent_from_pos):
+        pos = agent_from_pos
         a_r = self.env.get_row(pos)
         a_c = self.env.get_col(pos)
 
@@ -104,8 +105,17 @@ class DFSPolicy:
 
     def _get_possible_actions(self, agent):
 
+        agent_id = agent.get_id()
         target_victim = agent.pick_target()
-        current_action, _, path = self._find_path(agent, target_victim)
+        if agent_id not in self.agent_last_target:
+            self.agent_last_target[agent_id] = target_victim
+
+        agent_pos = agent.get_initial_position()
+        if target_victim is not self.agent_last_target[agent_id]:
+            agent_pos = agent.get_pos()
+            self.agent_last_target[agent_id] = target_victim
+
+        current_action, _, path = self._find_path(agent, target_victim, agent_from_pos=agent_pos)
 
         return [current_action]
 
