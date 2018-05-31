@@ -75,6 +75,8 @@ if __name__ == "__main__":
     for episode in range(TOTAL_EPISODES):
         # state_n is position of each agent {agent_0: [r1, c1], agent_1: [r2, c2]}
         env.reset_n()
+        policy.reset()
+
         counter = 0
         cumulative_reward = 0
         score = 0

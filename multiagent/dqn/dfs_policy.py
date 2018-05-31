@@ -64,6 +64,9 @@ class DFSPolicy:
         self.graph = self.env.get_graph_representation()
         self.agent_last_target = {}
 
+    def reset(self):
+        self.agent_last_target = {}
+
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
@@ -111,9 +114,12 @@ class DFSPolicy:
             self.agent_last_target[agent_id] = target_victim
 
         agent_pos = agent.get_initial_position()
-        if target_victim is not self.agent_last_target[agent_id]:
-            agent_pos = agent.get_pos()
+        last_target_victim = self.agent_last_target[agent_id]
+        if target_victim is not last_target_victim:
+            agent_pos = agent.get_position()
             self.agent_last_target[agent_id] = target_victim
+            # reset history of first finding
+            agent.reset_history()
 
         current_action, _, path = self._find_path(agent, target_victim, agent_from_pos=agent_pos)
 
