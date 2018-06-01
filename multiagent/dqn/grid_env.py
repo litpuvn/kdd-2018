@@ -7,7 +7,7 @@ import sys
 
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
-UNIT = 80  # pixels
+UNIT = 40  # pixels
 # HEIGHT = 5  # grid height
 # WIDTH = 5  # grid width
 

@@ -18,7 +18,7 @@ import itertools
 class DQNPolicy:
     # Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
 
-    LEARNING_RATE = 0.1
+    LEARNING_RATE = 0.2
     DISCOUNT_FACTOR = 0.9
 
     EPSILON = 0.1
@@ -195,7 +195,7 @@ class DQNPolicy:
         action_n = []
         agent_count = len(self.env.get_agents())
 
-        if np.random.rand() < DQNPolicy.EPSILON and episode < 250:
+        if np.random.rand() < DQNPolicy.EPSILON and episode < 650:
             # take random action
             for i in range(agent_count):
                 state = state_n[i]
