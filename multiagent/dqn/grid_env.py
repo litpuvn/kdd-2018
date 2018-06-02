@@ -7,7 +7,7 @@ import sys
 
 np.random.seed(1)
 PhotoImage = ImageTk.PhotoImage
-UNIT = 40  # pixels
+# UNIT = 40  # pixels
 # HEIGHT = 5  # grid height
 # WIDTH = 5  # grid width
 
@@ -73,6 +73,9 @@ class Env(tk.Tk):
         self.Ny = self.env_info["Ny"]
         self.Nx = self.env_info["Nx"]
 
+        if "Unit" in self.env_info:
+            self.UNIT = self.env_info["Unit"]
+
         self.WIDTH = self.Nx
         self.HEIGHT = self.Ny
         # ********* ***********
@@ -83,7 +86,7 @@ class Env(tk.Tk):
         self.n_actions = len(self.action_space)
 
         self.title('Q Learning')
-        self.geometry('{0}x{1}'.format(self.WIDTH * UNIT, self.HEIGHT * UNIT))
+        self.geometry('{0}x{1}'.format(self.WIDTH * self.UNIT, self.HEIGHT * self.UNIT))
         self.shapes = self.load_images()
 
         self.canvas = self._build_canvas()
@@ -116,14 +119,14 @@ class Env(tk.Tk):
 
     def _build_canvas(self):
         canvas = tk.Canvas(self, bg='white',
-                           height=self.HEIGHT * UNIT,
-                           width=self.WIDTH * UNIT)
+                           height=self.HEIGHT * self.UNIT,
+                           width=self.WIDTH * self.UNIT)
         # create grids
-        for c in range(0, self.WIDTH * UNIT, UNIT):  # 0~400 by 80
-            x0, y0, x1, y1 = c, 0, c, self.HEIGHT * UNIT
+        for c in range(0, self.WIDTH * self.UNIT, self.UNIT):  # 0~400 by 80
+            x0, y0, x1, y1 = c, 0, c, self.HEIGHT * self.UNIT
             canvas.create_line(x0, y0, x1, y1)
-        for r in range(0, self.HEIGHT * UNIT, UNIT):  # 0~400 by 80
-            x0, y0, x1, y1 = 0, r, self.HEIGHT * UNIT, r
+        for r in range(0, self.HEIGHT * self.UNIT, self.UNIT):  # 0~400 by 80
+            x0, y0, x1, y1 = 0, r, self.HEIGHT * self.UNIT, r
             canvas.create_line(x0, y0, x1, y1)
 
         return canvas
@@ -217,24 +220,24 @@ class Env(tk.Tk):
         reward = 0
 
         if action == GO_UP:  # up
-            if state[1] > UNIT:
-                base_action[1] -= UNIT
+            if state[1] > self.UNIT:
+                base_action[1] -= self.UNIT
             else:
                 reward = INVALID_STEP_PENALTY
         elif action == GO_DOWN:  # down
-            if state[1] < (self.HEIGHT - 1) * UNIT:
-                base_action[1] += UNIT
+            if state[1] < (self.HEIGHT - 1) * self.UNIT:
+                base_action[1] += self.UNIT
             else:
                 reward = INVALID_STEP_PENALTY
 
         elif action == GO_LEFT:  # left
-            if state[0] > UNIT:
-                base_action[0] -= UNIT
+            if state[0] > self.UNIT:
+                base_action[0] -= self.UNIT
             else:
                 reward = INVALID_STEP_PENALTY
         elif action == GO_RIGHT:  # right
-            if state[0] < (self.WIDTH - 1) * UNIT:
-                base_action[0] += UNIT
+            if state[0] < (self.WIDTH - 1) * self.UNIT:
+                base_action[0] += self.UNIT
             else:
                 reward = INVALID_STEP_PENALTY
 
@@ -299,8 +302,8 @@ class Env(tk.Tk):
         # base_action, reward = self._calculate_step(agent, action)
         self.render()
         # move agent - with canvas, we must convert to canvas coordintes
-        shift_x = shift_col * UNIT
-        shift_y = shift_row * UNIT
+        shift_x = shift_col * self.UNIT
+        shift_y = shift_row * self.UNIT
 
         self.canvas.move(agent_resource_id, shift_x, shift_y)
         # move rectangle to top level of canvas
@@ -628,21 +631,21 @@ class Env(tk.Tk):
     def get_row_center_pixel(self, pos):
         row = self.get_row(pos)
 
-        return int(row*UNIT + UNIT / 2)
+        return int(row*self.UNIT + self.UNIT / 2)
 
     def get_column_center_pixel(self, pos):
         col = self.get_col(pos)
 
-        return int(col*UNIT + UNIT / 2)
+        return int(col*self.UNIT + self.UNIT / 2)
 
     def get_row_from_coord(self, row_pixel):
 
-        return int((row_pixel - UNIT / 2) / UNIT)
+        return int((row_pixel - self.UNIT / 2) / self.UNIT)
 
 
     def get_col_from_coord(self, col_pixel):
 
-        return int((col_pixel - UNIT / 2) / UNIT)
+        return int((col_pixel - self.UNIT / 2) / self.UNIT)
 
     def get_pos_from_row_and_col(self, row, col):
         return row * self.WIDTH + col
@@ -780,17 +783,17 @@ class Env(tk.Tk):
                    style='normal', anchor="nw"):
 
         if action == GO_UP:
-            origin_x, origin_y = int(UNIT/2)-5, 1
+            origin_x, origin_y = int(self.UNIT/2)-5, 1
         elif action == GO_DOWN:
-            origin_x, origin_y = int(UNIT/2)-5, UNIT - 15
+            origin_x, origin_y = int(self.UNIT/2)-5, self.UNIT - 15
         elif action == GO_LEFT:
-            origin_x, origin_y = 1, int(UNIT / 2) - 8
+            origin_x, origin_y = 1, int(self.UNIT / 2) - 8
         elif action == GO_RIGHT:
-            origin_x, origin_y = UNIT - 30, int(UNIT / 2) - 8
+            origin_x, origin_y = self.UNIT - 30, int(self.UNIT / 2) - 8
         else:
             origin_x, origin_y = 0, 0
 
-        x, y = origin_x + (UNIT * col), origin_y + (UNIT * row)
+        x, y = origin_x + (self.UNIT * col), origin_y + (self.UNIT * row)
         font = (font, str(size), style)
         text = self.canvas.create_text(x, y, fill="black", text=contents,
                                        font=font, anchor=anchor)

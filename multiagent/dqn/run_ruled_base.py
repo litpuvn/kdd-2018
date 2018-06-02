@@ -25,8 +25,10 @@ if __name__ == "__main__":
     max_victim_count = 50
 
     info = {
-        "env": {"Ny": 10,
-                "Nx": 10},
+        "env": {"Ny": 5,
+                "Nx": 5,
+                "Unit": 80
+                },
         "agent": {"policy_mode": "epsgreedy",  # "epsgreedy", "softmax"
                   "eps": 1.0,
                   "eps_decay": 2.0 * np.log(10.0) / TOTAL_EPISODES},
@@ -124,7 +126,7 @@ if __name__ == "__main__":
             #     sum(reward_n)) + "; next_state=" + str(next_state_n))
 
             # state_n = copy.deepcopy(next_state_n)
-            # env.print_value_all(RandomPolicy.Q_TABLE)
+            env.print_value_all(RuleBasedPolicy.Q_TABLE)
 
             # if episode ends, then break
             if done:
