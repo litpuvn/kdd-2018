@@ -63,7 +63,7 @@ class Distribution:
         # testing
         self.volunteers = [
             # [4, 0],
-            # [0, 0],
+            [0, 0],
             [0, 0]
         ]
 

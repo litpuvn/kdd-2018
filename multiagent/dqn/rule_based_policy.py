@@ -119,10 +119,11 @@ class RuleBasedPolicy:
             state = state_n[i]
             agent_row = state[0]
             agent_col = state[1]
+            agent = self.env.get_agent(i)
             t = (agent_row, agent_col)
             q_state += t
 
-            my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+            my_actions = self._get_possible_actions(agent)
             action_n_tmp.append(my_actions)
 
         # combination = itertools.product(*action_n_tmp)
@@ -160,12 +161,34 @@ class RuleBasedPolicy:
 
         return max_val, action_n
 
+    def _get_possible_actions(self, agent):
+
+        pos = agent.get_position()
+        a_r = self.env.get_row(pos)
+        a_c = self.env.get_col(pos)
+        # validate all my_actions
+        # pick shortest distance actions:
+        my_actions = self.env.allowed_agent_actions(agent_row=a_r, agent_col=a_c, agent_id=agent.get_id())
+
+        returned_actions = []
+
+        for my_act in my_actions:
+            next_state, shift_row, shift_col = agent.perform_action(my_act, actual_move=False)
+
+            # avoid hitting the wall
+            if self.env.hit_walls(next_state[0], next_state[1]):
+                continue
+
+            returned_actions.append(my_act)
+
+        return returned_actions
+
     def get_action_n(self, state_n, episode=1):
         action_n = []
         agent_count = len(self.env.get_agents())
 
         # random walk while trainng to build rule-table
-        if episode < self.TRAINING_EPISODE_COUNT:
+        if episode < self.TRAINING_EPISODE_COUNT or np.random.rand() < RuleBasedPolicy.EPSILON:
             # take random action
             for i in range(agent_count):
                 state = state_n[i]
@@ -180,7 +203,7 @@ class RuleBasedPolicy:
                 if agent_row != a_r or agent_col != a_c:
                     raise Exception('invalid order of agent')
 
-                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+                my_actions = self._get_possible_actions(agent)
                 # validate all my_actions
 
                 action = np.random.choice(my_actions)
