@@ -11,7 +11,7 @@ import copy
 import numpy as np
 from multiagent.dqn.grid_env import Env
 from multiagent.dqn.dqn_agent import DQNAgent
-from multiagent.dqn.rule_based_policy import RuledBasePolicy
+from multiagent.dqn.rule_based_policy import RuleBasedPolicy
 from multiagent.dqn.memory import Memory
 
 import pylab
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     env.pack_canvas()
 
     memory = Memory(info)
-    policy = RuledBasePolicy(env, info)
+    policy = RuleBasedPolicy(env, info)
     logger = Env.setup_custom_logger("app", logging.INFO)
     q_table_logger = Env.setup_custom_logger("qtable", logging.INFO, 'q_table.log')
     global_step = 0
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
                 # action_n.append(action)
 
-            # policy.learn(state_n, action_n, reward_n, next_state_n)
+            policy.learn(state_n, action_n, reward_n, next_state_n)
 
             if env.is_terminated() or sum(done_n) > 0:
                 done = True
