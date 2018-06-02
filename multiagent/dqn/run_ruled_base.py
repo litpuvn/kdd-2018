@@ -11,7 +11,7 @@ import copy
 import numpy as np
 from multiagent.dqn.grid_env import Env
 from multiagent.dqn.dqn_agent import DQNAgent
-from multiagent.dqn.random_policy import RandomPolicy
+from multiagent.dqn.rule_based_policy import RuledBasePolicy
 from multiagent.dqn.memory import Memory
 
 import pylab
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     env.pack_canvas()
 
     memory = Memory(info)
-    policy = RandomPolicy(env, info)
+    policy = RuledBasePolicy(env, info)
     logger = Env.setup_custom_logger("app", logging.INFO)
     q_table_logger = Env.setup_custom_logger("qtable", logging.INFO, 'q_table.log')
     global_step = 0
