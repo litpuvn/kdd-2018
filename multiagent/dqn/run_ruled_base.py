@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
                 # action_n.append(action)
 
-            policy.learn(state_n, action_n, reward_n, next_state_n)
+            policy.learn(state_n, action_n, reward_n, next_state_n, episode)
 
             if env.is_terminated() or sum(done_n) > 0:
                 done = True

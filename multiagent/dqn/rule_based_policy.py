@@ -56,6 +56,8 @@ class RuleBasedPolicy:
         self.gamma = self.brain_info["discount"]
         self.learning_rate = self.brain_info["learning_rate"]
 
+        self.TRAINING_EPISODE_COUNT = 20
+
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
@@ -72,16 +74,12 @@ class RuleBasedPolicy:
         return state
 
     # update q function with sample <s, a, r, s'>
-    def learn(self, state_n, action_n, reward_n, next_state_n):
+    def learn(self, state_n, action_n, reward_n, next_state_n, episode=0):
+        if episode > self.TRAINING_EPISODE_COUNT:
+            return
 
         current_q_state = self._build_q_state(state_n, action_n)
-        q_val = RuleBasedPolicy.Q_TABLE[current_q_state]
-
-        max_q, _ = self._get_max_q_at_state(next_state_n)
-        target_q = sum(reward_n) + RuleBasedPolicy.DISCOUNT_FACTOR * max_q
-
-        dq_error = (target_q - q_val)
-        RuleBasedPolicy.Q_TABLE[current_q_state] += RuleBasedPolicy.LEARNING_RATE * dq_error
+        RuleBasedPolicy.Q_TABLE[current_q_state] += sum(reward_n)
 
     def _get_n_actions_index(self, action_n):
         binary_string = ''
@@ -113,9 +111,10 @@ class RuleBasedPolicy:
 
         return state
 
-    def _get_max_q_at_state(self, state_n):
+    def _get_actions_at_state(self, state_n):
         q_state = ()
         action_n_tmp = []
+        # get possible actions
         for i in range(self.agent_count):
             state = state_n[i]
             agent_row = state[0]
@@ -128,7 +127,7 @@ class RuleBasedPolicy:
 
         # combination = itertools.product(*action_n_tmp)
         actions_Qmax_allowed = []
-        # find max q
+        # find max q with all possible pairs (state_n, action_n)
         max_val = None
         for i in itertools.product(*action_n_tmp):
             state = q_state + i
@@ -165,7 +164,8 @@ class RuleBasedPolicy:
         action_n = []
         agent_count = len(self.env.get_agents())
 
-        if np.random.rand() < RuleBasedPolicy.EPSILON and episode < 650:
+        # random walk while trainng to build rule-table
+        if episode < self.TRAINING_EPISODE_COUNT:
             # take random action
             for i in range(agent_count):
                 state = state_n[i]
@@ -187,7 +187,7 @@ class RuleBasedPolicy:
                 action_n.append(action)
         else:
 
-            qmax, action_n = self._get_max_q_at_state(state_n)
+            qmax, action_n = self._get_actions_at_state(state_n)
             # print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', qmax)
 
         return action_n
