@@ -65,6 +65,9 @@ class HQPolicy:
         self.graph = self.env.get_graph_representation()
         self.heuristic_table = self._build_heuristic_table(q_state)
 
+        ## init q table
+        HQPolicy.Q_TABLE = np.copy(self.heuristic_table)
+
     def _heuristic(self, cell, goal):
         return abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
 
@@ -223,7 +226,7 @@ class HQPolicy:
         current_q_state = self._build_q_state(state_n, action_n)
         q_val = HQPolicy.Q_TABLE[current_q_state]
 
-        max_q, _ = self._get_max_q_at_state(next_state_n)
+        max_q, _ = self._get_max_q_at_state(next_state_n, True)
         target_q = sum(reward_n) + HQPolicy.DISCOUNT_FACTOR * max_q
 
         dq_error = (target_q - q_val)
@@ -269,7 +272,7 @@ class HQPolicy:
 
         return val
 
-    def _get_max_q_at_state(self, state_n):
+    def _get_max_q_at_state(self, state_n, learning=False):
         q_state = ()
         action_n_tmp = []
         for i in range(self.agent_count):
@@ -280,12 +283,25 @@ class HQPolicy:
             q_state += t
 
             my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+            if learning == True:
+                action_n_tmp.append(my_actions)
+                continue
             #choose action with good heuristics
-            # agent = self.env.get_agent(i)
-            # my_heuristic_actions = []
-            # for a in my_actions:
+            agent = self.env.get_agent(i)
+            my_heuristic_actions = []
+            h_min = 10000
+            for a in my_actions:
+                next_state, _, _ = agent.perform_action(a, actual_move=False, from_state=state)
+                heuristic_at_pos = self._get_heuristics_at_pos(next_state[0], next_state[1])
+                if h_min > heuristic_at_pos:
+                    h_min = heuristic_at_pos
+            for a in my_actions:
+                next_state, _, _ = agent.perform_action(a, actual_move=False, from_state=state)
+                heuristic_at_pos = self._get_heuristics_at_pos(next_state[0], next_state[1])
+                if h_min == heuristic_at_pos:
+                    my_heuristic_actions.append(a)
 
-            action_n_tmp.append(my_actions)
+            action_n_tmp.append(my_heuristic_actions)
 
         # combination = itertools.product(*action_n_tmp)
         actions_Qmax_allowed = []
