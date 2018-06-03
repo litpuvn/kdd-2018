@@ -15,7 +15,7 @@ from collections import deque
 import itertools
 
 
-class DQNPolicy:
+class QPolicy:
     # Q_TABLE = defaultdict(lambda: [0.0, 0.0, 0.0, 0.0])
 
     LEARNING_RATE = 0.2
@@ -45,7 +45,7 @@ class DQNPolicy:
             a_n.append(self.action_count)
 
         q_state = state_n + tuple(a_n)
-        DQNPolicy.Q_TABLE = np.zeros(q_state, dtype=np.float)
+        QPolicy.Q_TABLE = np.zeros(q_state, dtype=np.float)
 
         self.state_space = 1
         for i in range(self.agent_count):
@@ -80,13 +80,13 @@ class DQNPolicy:
     def learn(self, state_n, action_n, reward_n, next_state_n):
 
         current_q_state = self._build_q_state(state_n, action_n)
-        q_val = DQNPolicy.Q_TABLE[current_q_state]
+        q_val = QPolicy.Q_TABLE[current_q_state]
 
         max_q, _ = self._get_max_q_at_state(next_state_n)
-        target_q = sum(reward_n) + DQNPolicy.DISCOUNT_FACTOR * max_q
+        target_q = sum(reward_n) + QPolicy.DISCOUNT_FACTOR * max_q
 
         dq_error = (target_q - q_val)
-        DQNPolicy.Q_TABLE[current_q_state] += DQNPolicy.LEARNING_RATE * dq_error
+        QPolicy.Q_TABLE[current_q_state] += QPolicy.LEARNING_RATE * dq_error
 
     def _get_n_actions_index(self, action_n):
         binary_string = ''
@@ -123,13 +123,13 @@ class DQNPolicy:
         # state string is the pos index mapping to all scores if move left, right, up and down
         state = self._get_state_string(state_n)
 
-        # if np.random.rand() < DQNPolicy.EPSILON:
+        # if np.random.rand() < QPolicy.EPSILON:
         #     # take random action
         #     action = np.random.choice(self.actions)
         # else:
 
             # take action according to the q function table
-        all_possible_agent_actions = DQNPolicy.Q_TABLE[state]
+        all_possible_agent_actions = QPolicy.Q_TABLE[state]
         agent_action_offset = agent_index * self.action_count
         agent_action_end_offset = agent_action_offset + self.action_count
         agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
@@ -161,7 +161,7 @@ class DQNPolicy:
         max_val = None
         for i in itertools.product(*action_n_tmp):
             state = q_state + i
-            val = DQNPolicy.Q_TABLE[state]
+            val = QPolicy.Q_TABLE[state]
             if max_val is None:
                 max_val = val
             if val > max_val:
@@ -170,7 +170,7 @@ class DQNPolicy:
         # get actions
         for i in itertools.product(*action_n_tmp):
             state = q_state + i
-            val = DQNPolicy.Q_TABLE[state]
+            val = QPolicy.Q_TABLE[state]
             if val == max_val:
                 tmp = []
                 for a in i:
@@ -184,7 +184,7 @@ class DQNPolicy:
         action_n = actions_Qmax_allowed[random_action_index]
 
         test_state = self._build_q_state(state_n, action_n)
-        q_val = DQNPolicy.Q_TABLE[test_state]
+        q_val = QPolicy.Q_TABLE[test_state]
         if q_val != max_val:
             raise Exception('Invalid suggested action_n')
 
@@ -195,7 +195,7 @@ class DQNPolicy:
         action_n = []
         agent_count = len(self.env.get_agents())
 
-        if np.random.rand() < DQNPolicy.EPSILON and episode < 650:
+        if np.random.rand() < QPolicy.EPSILON and episode < 650:
             # take random action
             for i in range(agent_count):
                 state = state_n[i]
@@ -239,7 +239,7 @@ class DQNPolicy:
     def get_qtable(self):
 
         tb = []
-        for k, v in DQNPolicy.Q_TABLE.items():
+        for k, v in QPolicy.Q_TABLE.items():
             tb.append(str(k) + str(v) + "\n")
 
         return tb

@@ -11,7 +11,7 @@ import copy
 import numpy as np
 from multiagent.dqn.grid_env import Env
 from multiagent.dqn.dqn_agent import DQNAgent
-from multiagent.dqn.dqn_policy import DQNPolicy
+from multiagent.dqn.q_policy import QPolicy
 from multiagent.dqn.memory import Memory
 
 import pylab
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     env.pack_canvas()
 
     memory = Memory(info)
-    policy = DQNPolicy(env, info)
+    policy = QPolicy(env, info)
     logger = Env.setup_custom_logger("app", logging.INFO)
     q_table_logger = Env.setup_custom_logger("qtable", logging.INFO, 'q_table.log')
     global_step = 0
@@ -124,7 +124,7 @@ if __name__ == "__main__":
             #     sum(reward_n)) + "; next_state=" + str(next_state_n))
 
             # state_n = copy.deepcopy(next_state_n)
-            env.print_value_all(DQNPolicy.Q_TABLE)
+            env.print_value_all(QPolicy.Q_TABLE)
 
             # if episode ends, then break
             if done:
