@@ -111,13 +111,14 @@ class HQPolicy:
 
         h_min = 9999999
         for v in self.env.victims:
-
-            if v.get_reward() < 0:
-                continue
-
             pos = v.get_position()
             r = self.env.get_row(pos)
             c = self.env.get_col(pos)
+
+            if v.get_reward() < 0:
+                if r == row and c == col:
+                    return 10000
+                continue
 
             h = self._heuristic([r, c], [row, col])
             if h < h_min:
@@ -258,29 +259,15 @@ class HQPolicy:
 
         return state
 
-    def get_agent_action(self, agent_index, state_n):
+    def _get_value_at_state(self, state_action):
+        h_factor = 1
 
-        # state string is the pos index mapping to all scores if move left, right, up and down
-        state = self._get_state_string(state_n)
+        q_val = HQPolicy.Q_TABLE[state_action]
+        h_val = self.heuristic_table[state_action]
 
-        # if np.random.rand() < HQPolicy.EPSILON:
-        #     # take random action
-        #     action = np.random.choice(self.actions)
-        # else:
+        val = q_val - h_factor*h_val
 
-            # take action according to the q function table
-        all_possible_agent_actions = HQPolicy.Q_TABLE[state]
-        agent_action_offset = agent_index * self.action_count
-        agent_action_end_offset = agent_action_offset + self.action_count
-        agent_i_actions = all_possible_agent_actions[agent_action_offset:agent_action_end_offset]
-
-        # avoid turning back
-        action = self._get_indices_at_max_value(agent_i_actions)
-        agent = self.env.get_agent(agent_index)
-        while self.env.turn_back(agent.get_last_action(), action):
-            action = np.random.choice(self.actions)
-
-        return action
+        return val
 
     def _get_max_q_at_state(self, state_n):
         q_state = ()
@@ -293,25 +280,36 @@ class HQPolicy:
             q_state += t
 
             my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+            #choose action with good heuristics
+            # agent = self.env.get_agent(i)
+            # my_heuristic_actions = []
+            # for a in my_actions:
+
             action_n_tmp.append(my_actions)
 
         # combination = itertools.product(*action_n_tmp)
         actions_Qmax_allowed = []
         # find max q
         max_val = None
-        for i in itertools.product(*action_n_tmp):
-            state = q_state + i
-            val = HQPolicy.Q_TABLE[state]
+        q_max_val = None
+        for a in itertools.product(*action_n_tmp):
+            state = q_state + a
+            val = self._get_value_at_state(state)
+
             if max_val is None:
                 max_val = val
+                q_max_val = HQPolicy.Q_TABLE[state]
+
             if val > max_val:
                 max_val = val
+                q_max_val = HQPolicy.Q_TABLE[state]
 
         # get actions
         for i in itertools.product(*action_n_tmp):
             state = q_state + i
-            val = HQPolicy.Q_TABLE[state]
-            if val == max_val:
+            val = self._get_value_at_state(state)
+            q_val = HQPolicy.Q_TABLE[state]
+            if val == max_val and q_max_val == q_val:
                 tmp = []
                 for a in i:
                     tmp.append(a)
@@ -324,41 +322,15 @@ class HQPolicy:
         action_n = actions_Qmax_allowed[random_action_index]
 
         test_state = self._build_q_state(state_n, action_n)
-        q_val = HQPolicy.Q_TABLE[test_state]
+        q_val = self._get_value_at_state(test_state)
         if q_val != max_val:
             raise Exception('Invalid suggested action_n')
 
-        return max_val, action_n
-
+        return q_max_val, action_n
 
     def get_action_n(self, state_n, episode=1):
-        action_n = []
-        agent_count = len(self.env.get_agents())
 
-        if np.random.rand() < HQPolicy.EPSILON and episode < 650:
-            # take random action
-            for i in range(agent_count):
-                state = state_n[i]
-                agent_row = state[0]
-                agent_col = state[1]
-
-                agent = self.env.get_agent(i)
-                pos = agent.get_position()
-                a_r = self.env.get_row(pos)
-                a_c = self.env.get_col(pos)
-
-                if agent_row != a_r or agent_col != a_c:
-                    raise Exception('invalid order of agent')
-
-                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
-                # validate all my_actions
-
-                action = np.random.choice(my_actions)
-                action_n.append(action)
-        else:
-
-            qmax, action_n = self._get_max_q_at_state(state_n)
-            # print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', qmax)
+        qmax, action_n = self._get_max_q_at_state(state_n)
 
         return action_n
 
