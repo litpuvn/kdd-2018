@@ -73,6 +73,8 @@ class Env(tk.Tk):
         self.Ny = self.env_info["Ny"]
         self.Nx = self.env_info["Nx"]
 
+        self.UNIT = 40
+
         if "Unit" in self.env_info:
             self.UNIT = self.env_info["Unit"]
 
@@ -257,6 +259,18 @@ class Env(tk.Tk):
             return GO_LEFT
 
         raise Exception('Invalid direction')
+
+    def get_reward_at_pos(self, r, c):
+        reward = 0
+        for v in self.victims:
+            v_pos = v.get_position()
+            v_r = self.get_row(v_pos)
+            v_c = self.get_col(v_pos)
+
+            if r == v_r and c == v_c:
+                return v.get_reward()
+
+        return reward
 
     def get_reward_for_agent(self, agent):
         pos = agent.get_position()
