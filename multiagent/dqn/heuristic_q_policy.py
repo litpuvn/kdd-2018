@@ -66,7 +66,7 @@ class HQPolicy:
         self.heuristic_table = self._build_heuristic_table(q_state)
 
         ## init q table
-        HQPolicy.Q_TABLE = np.copy(self.heuristic_table)
+        HQPolicy.Q_TABLE = np.copy(-1*self.heuristic_table)
 
     def _heuristic(self, cell, goal):
         return abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
