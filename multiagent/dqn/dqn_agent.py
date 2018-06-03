@@ -69,11 +69,16 @@ class DQNAgent(BaseAgent):
                 return v
 
         raise Exception('Not found v')
+
     # ========================
     # Action utilities - jumping 1 cell
     # ========================
-    def perform_action(self, action, actual_move=True):
-        pos = self.get_position()
+    def perform_action(self, action, actual_move=True, from_state=None):
+        if from_state is None:
+            pos = self.get_position()
+        else:
+            pos = self.env.get_pos_from_row_and_col(from_state[0], from_state[1])
+
         current_row = self.env.get_row(pos)
         current_col = self.env.get_col(pos)
 

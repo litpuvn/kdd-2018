@@ -13,6 +13,7 @@ from keras.layers.convolutional import Convolution2D
 from keras.models import load_model
 from collections import deque
 import itertools
+from heapq import heappop, heappush
 
 
 class HQPolicy:
@@ -60,6 +61,145 @@ class HQPolicy:
         # Learning parameters
         self.gamma = self.brain_info["discount"]
         self.learning_rate = self.brain_info["learning_rate"]
+
+        self.graph = self.env.get_graph_representation()
+        self.heuristic_table = self._build_heuristic_table(q_state)
+
+    def _heuristic(self, cell, goal):
+        return abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
+
+        # find path should be from initial pos
+
+    def _find_path(self, agent, victim, agent_from_pos):
+        pos = agent_from_pos
+        a_r = self.env.get_row(pos)
+        a_c = self.env.get_col(pos)
+
+        pos = victim.get_position()
+        v_r = self.env.get_row(pos)
+        v_c = self.env.get_col(pos)
+
+        start, goal = (a_r, a_c), (v_r, v_c)
+
+        pr_queue = []
+        heappush(pr_queue, (0 + self._heuristic(start, goal), 0, "", start))
+
+        graph = self.graph
+
+        visited = set()
+        while pr_queue:
+            _, cost, path, current = heappop(pr_queue)
+            if current == goal:
+                total_step_taken = len(agent.get_action_history())
+
+                if total_step_taken > len(path):
+                    raise Exception('Invalid path and historical steps')
+
+                current_step = path[total_step_taken]
+                action = self.env.get_action_from_direction(current_step)
+
+                return action, total_step_taken, path
+
+            if current in visited:
+                continue
+            visited.add(current)
+            for direction, neighbour in graph[current]:
+                heappush(pr_queue, (cost + self._heuristic(neighbour, goal), cost + 1,
+                                    path + direction, neighbour))
+
+    def _get_heuristics_at_pos(self, row, col):
+
+        h_min = 9999999
+        for v in self.env.victims:
+
+            if v.get_reward() < 0:
+                continue
+
+            pos = v.get_position()
+            r = self.env.get_row(pos)
+            c = self.env.get_col(pos)
+
+            h = self._heuristic([r, c], [row, col])
+            if h < h_min:
+                h_min = h
+
+        return h_min
+
+    def _build_heuristic_table(self, state_action_space):
+        table = np.zeros(state_action_space, dtype=np.float)
+        state_space = self._create_state_space()
+        for state_n_tuple in state_space:
+            state_n = self._get_state_n_from_tuple(state_n_tuple)
+            for action_n_tuple in self._get_possible_action_space(state_n):
+                action_n = self._get_action_n_from_tuple(action_n_tuple)
+
+                heuristics = []
+                for i in range(len(state_n)):
+                    state = state_n[i]
+                    agent = self.env.get_agent(i)
+                    next_state, _, _ = agent.perform_action(action_n[i], actual_move=False, from_state=state)
+                    heuristic_at_pos = self._get_heuristics_at_pos(next_state[0], next_state[1])
+                    heuristics.append(heuristic_at_pos)
+
+                h_value = sum(heuristics)
+                table[state_n_tuple + action_n_tuple] += h_value
+
+        return table
+
+    def _create_state_space(self):
+
+        state_n = []
+        for i in range(self.agent_count):
+            rows = []
+            for r in range(self.env.HEIGHT):
+                rows.append(r)
+
+            cols = []
+            for c in range(self.env.WIDTH):
+                cols.append(c)
+            state_n.append(rows)
+            state_n.append(cols)
+
+        state_space = itertools.product(*state_n)
+
+        return state_space
+
+    def _get_state_n_from_tuple(self, state_n_tuple):
+        state_n = []
+        for i in range(0, len(state_n_tuple) - 1, 2):
+            state_n.append([state_n_tuple[i], state_n_tuple[i + 1]])
+
+        return state_n
+
+    def _get_action_n_from_tuple(self, action_n_tuple):
+        action_n = []
+        for i in range(len(action_n_tuple)):
+            action_n.append(action_n_tuple[i])
+
+        return action_n
+
+    def _get_state_n_tuple(self, state_n):
+        state_n_tuple = ()
+        for state in state_n:
+            state_n_tuple += tuple(state)
+
+        return state_n_tuple
+
+    def _get_value(self, state_n):
+        state_n_tuple = self._get_state_n_tuple(state_n)
+
+        return self.heuristic_table[state_n_tuple]
+
+    def _get_possible_action_space(self, state_n):
+        action_n_tmp = []
+        for i in range(self.agent_count):
+            state = state_n[i]
+            agent_row = state[0]
+            agent_col = state[1]
+            my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+            action_n_tmp.append(my_actions)
+
+        return itertools.product(*action_n_tmp)
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -243,3 +383,6 @@ class HQPolicy:
             tb.append(str(k) + str(v) + "\n")
 
         return tb
+
+    def get_htable(self):
+        return self.heuristic_table
