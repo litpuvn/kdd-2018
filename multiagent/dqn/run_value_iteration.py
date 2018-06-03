@@ -26,7 +26,9 @@ if __name__ == "__main__":
 
     info = {
         "env": {"Ny": 5,
-                "Nx": 5},
+                "Nx": 5,
+                "Unit": 80
+                },
         "agent": {"policy_mode": "epsgreedy",  # "epsgreedy", "softmax"
                   "eps": 1.0,
                   "eps_decay": 2.0 * np.log(10.0) / TOTAL_EPISODES},
@@ -115,7 +117,7 @@ if __name__ == "__main__":
 
                 # action_n.append(action)
 
-            policy.learn(state_n, action_n, reward_n, next_state_n)
+            policy.learn(state_n, action_n, reward_n, next_state_n, episode)
 
             if env.is_terminated() or sum(done_n) > 0:
                 done = True
@@ -124,7 +126,7 @@ if __name__ == "__main__":
             #     sum(reward_n)) + "; next_state=" + str(next_state_n))
 
             # state_n = copy.deepcopy(next_state_n)
-            env.print_value_all(ValueIterationPolicy.Q_TABLE)
+            # env.print_value_all(ValueIterationPolicy.Q_TABLE)
 
             # if episode ends, then break
             if done:

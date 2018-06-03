@@ -96,7 +96,10 @@ class ValueIterationPolicy:
 
         return itertools.product(*action_n_tmp)
 
-    def learn(self, state_n, action_n, reward_n, next_state_n):
+    def learn(self, state_n, action_n, reward_n, next_state_n, episode=1):
+        if episode > 10:
+            return
+
         next_value = self._get_value(next_state_n)
         q_value = sum(reward_n) + self.DISCOUNT_FACTOR * next_value
 
