@@ -63,10 +63,11 @@ class HQPolicy:
         self.learning_rate = self.brain_info["learning_rate"]
 
         self.graph = self.env.get_graph_representation()
-        self.heuristic_table = self._build_heuristic_table(q_state)
+        # self.heuristic_table = self._build_heuristic_table(q_state)
+        self.heuristic_table = np.zeros(q_state, dtype=np.float)
 
         ## init q table
-        HQPolicy.Q_TABLE = np.copy(-1*self.heuristic_table)
+        # HQPolicy.Q_TABLE = np.copy(-1*self.heuristic_table)
 
     def _heuristic(self, cell, goal):
         return abs(cell[0] - goal[0]) + abs(cell[1] - goal[1])
@@ -110,24 +111,24 @@ class HQPolicy:
                 heappush(pr_queue, (cost + self._heuristic(neighbour, goal), cost + 1,
                                     path + direction, neighbour))
 
-    def _get_heuristics_at_pos(self, row, col):
-
-        h_min = 9999999
-        for v in self.env.victims:
-            pos = v.get_position()
-            r = self.env.get_row(pos)
-            c = self.env.get_col(pos)
-
-            if v.get_reward() < 0:
-                if r == row and c == col:
-                    return 10000
-                continue
-
-            h = self._heuristic([r, c], [row, col])
-            if h < h_min:
-                h_min = h
-
-        return h_min
+    # def _get_heuristics_at_pos(self, row, col):
+    #
+    #     h_min = 9999999
+    #     for v in self.env.victims:
+    #         pos = v.get_position()
+    #         r = self.env.get_row(pos)
+    #         c = self.env.get_col(pos)
+    #
+    #         if v.get_reward() < 0:
+    #             if r == row and c == col:
+    #                 return 10000
+    #             continue
+    #
+    #         h = self._heuristic([r, c], [row, col])
+    #         if h < h_min:
+    #             h_min = h
+    #
+    #     return h_min
 
     def _build_heuristic_table(self, state_action_space):
         table = np.zeros(state_action_space, dtype=np.float)
@@ -137,15 +138,14 @@ class HQPolicy:
             for action_n_tuple in self._get_possible_action_space(state_n):
                 action_n = self._get_action_n_from_tuple(action_n_tuple)
 
-                heuristics = []
+                next_state_n = []
                 for i in range(len(state_n)):
                     state = state_n[i]
                     agent = self.env.get_agent(i)
                     next_state, _, _ = agent.perform_action(action_n[i], actual_move=False, from_state=state)
-                    heuristic_at_pos = self._get_heuristics_at_pos(next_state[0], next_state[1])
-                    heuristics.append(heuristic_at_pos)
+                    next_state_n.append(next_state)
 
-                h_value = sum(heuristics)
+                h_value, _ = self._get_heuristics_at_state(state_n)
                 table[state_n_tuple + action_n_tuple] += h_value
 
         return table
@@ -232,6 +232,61 @@ class HQPolicy:
         dq_error = (target_q - q_val)
         HQPolicy.Q_TABLE[current_q_state] += HQPolicy.LEARNING_RATE * dq_error
 
+    def update_heuristics(self, state_n, action_n, reward_n, next_state_n):
+
+        current_q_state = self._build_q_state(state_n, action_n)
+        h_val = self.heuristic_table[current_q_state]
+
+        h_pre_cost, _ = self._get_heuristics_at_state(state_n)
+        h_next_cost, _ = self._get_heuristics_at_state(next_state_n)
+
+        h_cost = h_next_cost - h_pre_cost
+        # h_cost = h_next_cost
+
+        target_h = sum(reward_n) + HQPolicy.DISCOUNT_FACTOR * (10-h_cost)
+
+        dq_error = (target_h - h_val)
+        self.heuristic_table[current_q_state] += HQPolicy.LEARNING_RATE * dq_error
+
+    def _get_heuristics_at_state(self, state_n):
+
+        dtype = [('state', int), ('victime', int), ('distance', float)]
+        values = []
+
+        for i in range(len(state_n)):
+            state_i = state_n[i]
+            for v in self.env.victims:
+                if v.get_reward() < 0 or v.is_rescued():
+                    continue
+                pos = v.get_position()
+                v_r = self.env.get_row(pos)
+                v_c = self.env.get_col(pos)
+                v_state = [v_r, v_c]
+                distance = self._heuristic(state_i, v_state)
+                values.append((i, v.get_id(), distance))
+
+        np_values = np.array(values, dtype=dtype)
+        sorted_values = np.sort(np_values, order=['distance'])
+
+        total_distance = 0
+        catched_a_i = []
+        catched_v_i = []
+
+        matched = []
+        for i in range(len(sorted_values)):
+            a_i, v_i, d = sorted_values[i]
+
+            if a_i in catched_a_i or v_i in catched_v_i:
+                continue
+
+            catched_a_i.append(a_i)
+            catched_v_i.append(v_i)
+            matched.append((a_i, v_i, d))
+            total_distance += d
+
+        return total_distance, matched
+
+
     def _get_n_actions_index(self, action_n):
         binary_string = ''
         for action in action_n:
@@ -248,27 +303,12 @@ class HQPolicy:
 
         return int(binary_string, 2)
 
-    def _get_state_string(self, state_n):
-        agent_count = len(self.env.get_agents())
-
-        state = ''
-        for i in range(agent_count):
-            state_i = state_n[i]
-            if len(state_i) != 2:
-                raise Exception("Invalid sate")
-
-            pos = '[' + str(int(state_i[0])) + ', ' + str(int(state_i[1])) + ']'
-            state = state + pos
-
-        return state
-
-    def _get_value_at_state(self, state_action):
-        h_factor = 1
+    def _get_combined_value_at_state(self, state_action):
 
         q_val = HQPolicy.Q_TABLE[state_action]
         h_val = self.heuristic_table[state_action]
 
-        val = q_val - h_factor*h_val
+        val = q_val + h_val
 
         return val
 
@@ -283,49 +323,27 @@ class HQPolicy:
             q_state += t
 
             my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
-            if learning == True:
-                action_n_tmp.append(my_actions)
-                continue
-            #choose action with good heuristics
-            agent = self.env.get_agent(i)
-            my_heuristic_actions = []
-            h_min = 10000
-            for a in my_actions:
-                next_state, _, _ = agent.perform_action(a, actual_move=False, from_state=state)
-                heuristic_at_pos = self._get_heuristics_at_pos(next_state[0], next_state[1])
-                if h_min > heuristic_at_pos:
-                    h_min = heuristic_at_pos
-            for a in my_actions:
-                next_state, _, _ = agent.perform_action(a, actual_move=False, from_state=state)
-                heuristic_at_pos = self._get_heuristics_at_pos(next_state[0], next_state[1])
-                if h_min == heuristic_at_pos:
-                    my_heuristic_actions.append(a)
-
-            action_n_tmp.append(my_heuristic_actions)
+            action_n_tmp.append(my_actions)
 
         # combination = itertools.product(*action_n_tmp)
         actions_Qmax_allowed = []
         # find max q
         max_val = None
-        q_max_val = None
         for a in itertools.product(*action_n_tmp):
             state = q_state + a
-            val = self._get_value_at_state(state)
+            val = HQPolicy.Q_TABLE[state]
 
             if max_val is None:
                 max_val = val
-                q_max_val = HQPolicy.Q_TABLE[state]
-
-            if val > max_val:
-                max_val = val
-                q_max_val = HQPolicy.Q_TABLE[state]
+            else:
+                if val > max_val:
+                    max_val = val
 
         # get actions
         for i in itertools.product(*action_n_tmp):
             state = q_state + i
-            val = self._get_value_at_state(state)
-            q_val = HQPolicy.Q_TABLE[state]
-            if val == max_val and q_max_val == q_val:
+            val = HQPolicy.Q_TABLE[state]
+            if val == max_val:
                 tmp = []
                 for a in i:
                     tmp.append(a)
@@ -338,15 +356,111 @@ class HQPolicy:
         action_n = actions_Qmax_allowed[random_action_index]
 
         test_state = self._build_q_state(state_n, action_n)
-        q_val = self._get_value_at_state(test_state)
+        q_val = HQPolicy.Q_TABLE[test_state]
         if q_val != max_val:
             raise Exception('Invalid suggested action_n')
 
-        return q_max_val, action_n
+        return max_val, action_n
+
+    def _get_actions_with_max_combined_value(self, state_n):
+        q_state = ()
+        action_n_tmp = []
+        for i in range(self.agent_count):
+            state = state_n[i]
+            agent_row = state[0]
+            agent_col = state[1]
+            t = (agent_row, agent_col)
+            q_state += t
+
+            my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+            action_n_tmp.append(my_actions)
+
+        # combination = itertools.product(*action_n_tmp)
+        actions_Qmax_allowed = []
+        # find max q
+        max_val = None
+        for a in itertools.product(*action_n_tmp):
+            state = q_state + a
+            val = self._get_combined_value_at_state(state)
+            state_n = self._get_state_n_from_tuple(q_state)
+            action_n = self._get_action_n_from_tuple(a)
+            next_state_n = []
+            for i in range(len(state_n)):
+                agent_i = self.env.get_agent(i)
+                action = action_n[i]
+                next_state, _, _ = agent_i.perform_action(action, actual_move=False, from_state=state_n[i])
+                next_state_n.append(next_state)
+
+            h_cost_next, _ = self._get_heuristics_at_state(next_state_n)
+            h_cost_pre, _ = self._get_heuristics_at_state(state_n)
+            dh_error = -h_cost_next + h_cost_pre
+            val += HQPolicy.LEARNING_RATE * dh_error
+            if max_val is None:
+                max_val = val
+                actions_Qmax_allowed.append(action_n)
+            else:
+                if val > max_val:
+                    actions_Qmax_allowed.clear()
+                    max_val = val
+                    actions_Qmax_allowed.append(action_n)
+                elif val == max_val:
+                    actions_Qmax_allowed.append(action_n)
+
+
+        # actions_Qmax_allowed.append(a_n_max)
+        # get actions
+        # for i in itertools.product(*action_n_tmp):
+        #     state = q_state + i
+        #     val = self._get_combined_value_at_state(state)
+        #     if val == max_val:
+        #         tmp = []
+        #         for a in i:
+        #             tmp.append(a)
+        #         actions_Qmax_allowed.append(tmp)
+
+        if len(actions_Qmax_allowed) < 1:
+            raise Exception('Error action q max')
+
+        random_action_index = random.randrange(0, len(actions_Qmax_allowed))
+        action_n = actions_Qmax_allowed[random_action_index]
+
+        # test_state = self._build_q_state(state_n, action_n)
+        # q_val = self._get_combined_value_at_state(test_state)
+        # if q_val != max_val:
+        #     raise Exception('Invalid suggested action_n')
+
+        return max_val, action_n
 
     def get_action_n(self, state_n, episode=1):
 
-        qmax, action_n = self._get_max_q_at_state(state_n)
+        action_n = []
+        agent_count = len(self.env.get_agents())
+
+        if np.random.rand() < HQPolicy.EPSILON and episode < 0:
+            # take random action
+            for i in range(agent_count):
+                state = state_n[i]
+                agent_row = state[0]
+                agent_col = state[1]
+
+                agent = self.env.get_agent(i)
+                pos = agent.get_position()
+                a_r = self.env.get_row(pos)
+                a_c = self.env.get_col(pos)
+
+                if agent_row != a_r or agent_col != a_c:
+                    raise Exception('invalid order of agent')
+
+                my_actions = self.env.allowed_agent_actions(agent_row=agent_row, agent_col=agent_col, agent_id=i)
+                # validate all my_actions
+
+                action = np.random.choice(my_actions)
+                action_n.append(action)
+        else:
+
+            # qmax, action_n = self._get_max_q_at_state(state_n)
+            qmax, action_n = self._get_actions_with_max_combined_value(state_n)
+            # print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', qmax)
 
         return action_n
 

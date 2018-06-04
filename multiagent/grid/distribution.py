@@ -63,7 +63,7 @@ class Distribution:
         # testing
         self.volunteers = [
             # [4, 0],
-            # [0, 0],
+            [0, 0],
             [0, 0]
         ]
 
@@ -77,12 +77,19 @@ class Distribution:
         #     [4, 4, 100]
         # ]
 
-        # 5x5 grid
+        # 5x5 heuristic test
         self.victims = [
             [1, 2, -100],
             [0, 2, -100],
             [1, 4, 100],
             # [3, 0, 100]
+        ]
+        # 5x5 grid
+        self.victims = [
+            [1, 2, -100],
+            [3, 2, -100],
+            [1, 4, 100],
+            [3, 0, 100]
         ]
 
         # # 10x10 grid

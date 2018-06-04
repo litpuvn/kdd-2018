@@ -117,6 +117,7 @@ if __name__ == "__main__":
 
                 # action_n.append(action)
 
+            policy.update_heuristics(state_n, action_n, reward_n, next_state_n)
             policy.learn(state_n, action_n, reward_n, next_state_n)
 
             if env.is_terminated() or sum(done_n) > 0:
@@ -126,8 +127,8 @@ if __name__ == "__main__":
             #     sum(reward_n)) + "; next_state=" + str(next_state_n))
 
             # state_n = copy.deepcopy(next_state_n)
-            env.print_value_all(HQPolicy.Q_TABLE)
-            # env.print_value_all(policy.heuristic_table)
+            # env.print_value_all(HQPolicy.Q_TABLE)
+            env.print_value_all(policy.heuristic_table)
 
             # if episode ends, then break
             if done:
