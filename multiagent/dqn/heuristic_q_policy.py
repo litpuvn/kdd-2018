@@ -312,7 +312,7 @@ class HQPolicy:
 
         return val
 
-    def _get_max_q_at_state(self, state_n, learning=False):
+    def _get_max_q_at_state(self, state_n, learning=False, greedy_selection=False):
         q_state = ()
         action_n_tmp = []
         for i in range(self.agent_count):
@@ -352,8 +352,31 @@ class HQPolicy:
         if len(actions_Qmax_allowed) < 1:
             raise Exception('Error action q max')
 
-        random_action_index = random.randrange(0, len(actions_Qmax_allowed))
-        action_n = actions_Qmax_allowed[random_action_index]
+        if greedy_selection == False:
+            random_action_index = random.randrange(0, len(actions_Qmax_allowed))
+            action_n = actions_Qmax_allowed[random_action_index]
+        else:
+            h_min = 999999
+            action_n = []
+            min_h_actions = []
+            for a_n in actions_Qmax_allowed:
+                next_state_n = []
+                for i in range(len(a_n)):
+                    agent = self.env.get_agent(i)
+                    action = a_n[i]
+                    next_state, _, _ = agent.perform_action(action, actual_move=False)
+                    next_state_n.append(next_state)
+
+                h_cost, _ = self._get_heuristics_at_state(next_state_n)
+                if h_cost < h_min:
+                    h_min = h_cost
+                    min_h_actions.clear()
+                    min_h_actions.append(a_n)
+                elif h_cost == h_min:
+                    min_h_actions.append(a_n)
+
+            random_action_index = random.randrange(0, len(min_h_actions))
+            action_n = min_h_actions[random_action_index]
 
         test_state = self._build_q_state(state_n, action_n)
         q_val = HQPolicy.Q_TABLE[test_state]
@@ -458,8 +481,8 @@ class HQPolicy:
                 action_n.append(action)
         else:
 
-            # qmax, action_n = self._get_max_q_at_state(state_n)
-            qmax, action_n = self._get_actions_with_max_combined_value(state_n)
+            qmax, action_n = self._get_max_q_at_state(state_n, learning=False, greedy_selection=True)
+            # qmax, action_n = self._get_actions_with_max_combined_value(state_n)
             # print('state_n:', state_n, '; suggested action_n:', action_n, '; q_max', qmax)
 
         return action_n
